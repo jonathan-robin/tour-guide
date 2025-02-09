@@ -26,14 +26,25 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
-      - name: Build with Maven (with debug output)
-        run: mvn clean install -X
-        working-directory: TourGuide
       - name: Check for build output and list target directory
         run: |
           echo "Checking build logs:"
-          ls -la TourGuide/target || echo "Target directory not found"
+          ls -la /target || echo "Target directory not found"
         working-directory: TourGuide
+      - name: Check for build output and list target directory 2
+        run: |
+          echo "Checking build logs:"
+          ls -la ./target || echo "Target directory not found"
+        working-directory: TourGuide
+      - name: Check for build output and list target directory 3
+        run: |
+          echo "Checking build logs:"
+          ls -la target || echo "Target directory not found"
+        working-directory: TourGuide
+      - name: Build with Maven (with debug output)
+        run: mvn clean install -X
+        working-directory: TourGuide
+
 
   test:
     runs-on: ubuntu-latest
