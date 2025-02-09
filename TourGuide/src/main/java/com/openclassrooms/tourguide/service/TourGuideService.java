@@ -107,17 +107,7 @@ public class TourGuideService {
 		rewardsService.calculateRewards(user);
 		return visitedLocation;
 	}
-	
-//	public List<CompletableFuture<VisitedLocation>> trackUsersLocationsAsync(List<User> users) {
-//	    return users.stream()
-//	        .map(user -> CompletableFuture.supplyAsync(() -> trackUserLocation(user), executorService)
-//	            .whenComplete((visitedLocation, ex) -> {
-//	                if (ex != null)
-//	                    log.warn("Error tracking location for user {}: {}", user.getUserName(), ex.getMessage());
-//	            }))
-//	        .collect(Collectors.toList());
-//	}
-	
+
 	public List<VisitedLocation> trackUsersLocationsAsync(List<User> users) {
 		
 		List<VisitedLocation> visitedLocations = Collections.synchronizedList(new ArrayList<>());
@@ -137,7 +127,6 @@ public class TourGuideService {
 
 	    return visitedLocations;
 	}
-	
 
 
 	public List<Attraction> getNearByAttractions(VisitedLocation visitedLocation) {

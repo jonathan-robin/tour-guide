@@ -65,9 +65,7 @@ public class TestPerformance {
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
 	    
-		List<VisitedLocation> visitedLocation = tourGuideService.trackUsersLocationsAsync(allUsers);
-//	    List<CompletableFuture<VisitedLocation>> futures 
-//	    CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+		tourGuideService.trackUsersLocationsAsync(allUsers);
 
 		stopWatch.stop();
 		tourGuideService.tracker.stopTracking();
