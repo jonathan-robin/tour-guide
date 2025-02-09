@@ -30,13 +30,7 @@ jobs:
         run: pwd
       - name: Build with Maven (with debug output)
         run: mvn clean install -X
-        working-directory: TourGuide
-      - name: Upload JAR artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: tourguide-jar
-          path: TourGuide/target/*.jar
-          retention-days: 7 
+        working-directory: TourGuide 
 
 
   test:
