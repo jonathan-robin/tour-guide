@@ -14,8 +14,7 @@ on:
     branches: [ "dev" ]
   pull_request:
     branches: [ "dev" ]
-    
-jobs:
+  jobs:
   build:
     runs-on: ubuntu-latest
     steps:
@@ -29,8 +28,11 @@ jobs:
       - name: Build with Maven
         run: mvn clean install
         working-directory: TourGuide
-      - name: List target directory contents (after build)
-        run: ls -la TourGuide/target
+      - name: Check for build output and list target directory
+        run: |
+          echo "Checking build logs:"
+          cat TourGuide/target/*.log || echo "No build logs found"
+          ls -la TourGuide/target || echo "Target directory not found"
         working-directory: TourGuide
 
   test:
@@ -52,12 +54,11 @@ jobs:
     needs: [build, test]
     steps:
       - name: List target directory contents (before upload)
-        run: ls -la TourGuide/target
-        working-directory: TourGuide
+        run: |
+          ls -la TourGuide/target || echo "Target directory not found"
       - name: Upload JAR file as artifact
         uses: actions/upload-artifact@v4
         with:
           name: java-artifact
           path: TourGuide/target/*.jar
           retention-days: 7
-
