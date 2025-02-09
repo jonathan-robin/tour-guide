@@ -56,7 +56,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: my-artifact
-        path: my_file.txt
+        path: artifact.txt
         retention-days: 5
 
     
