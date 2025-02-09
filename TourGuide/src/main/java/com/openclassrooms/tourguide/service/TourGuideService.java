@@ -108,6 +108,18 @@ public class TourGuideService {
 		return visitedLocation;
 	}
 
+	/**
+	 * Tracks the locations of a list of users asynchronously. For each user, it fetches their visited location
+	 * and adds it to a thread-safe list of visited locations. If an error occurs during the tracking process, it is logged.
+	 * 
+	 * This method ensures that all user location tracking tasks are completed before returning the list of visited locations.
+	 * 
+	 * @param users The list of users whose locations are to be tracked.
+	 * @return A thread-safe list of {@link VisitedLocation} objects containing the visited locations for each user.
+	 *         The list is populated asynchronously as the tracking tasks are completed.
+	 * @throws java.util.concurrent.ExecutionException If one of the asynchronous tasks throws an exception that is not handled.
+	 * @throws java.lang.InterruptedException If the current thread is interrupted while waiting for the completion of tasks.
+	 */
 	public List<VisitedLocation> trackUsersLocationsAsync(List<User> users) {
 		
 		List<VisitedLocation> visitedLocations = Collections.synchronizedList(new ArrayList<>());
