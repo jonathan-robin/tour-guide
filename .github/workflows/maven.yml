@@ -62,6 +62,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: java-artifact
-          path: Tourguide/target/*.jar
+          path: /home/runner/work/tour-guide/tour-guide/target/*.jar
           retention-days: 7
 
