@@ -3,3 +3,4 @@
 
 # But keep the .jar files
 !/target/*.jar
+
