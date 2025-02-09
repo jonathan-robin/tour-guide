@@ -47,6 +47,7 @@ public class TourGuideService {
 	private final GpsUtil gpsUtil;
 	private final RewardsService rewardsService;
 	private final TripPricer tripPricer = new TripPricer();
+	ExecutorService executorService = Executors.newCachedThreadPool();
 	public final Tracker tracker;
 	boolean testMode = true;
 
@@ -102,17 +103,34 @@ public class TourGuideService {
 	public VisitedLocation trackUserLocation(User user) {
 		VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
 		user.addToVisitedLocations(visitedLocation);
-		for (VisitedLocation visit : user.getVisitedLocations()) {
-		}
-
 		rewardsService.calculateRewards(user);
-		log.info(user.getUserRewards().toString());
 		return visitedLocation;
 	}
+	
+	public List<CompletableFuture<VisitedLocation>> trackUsersLocationsAsync(List<User> users) {
+	    return users.stream()
+	        .map(user -> trackUserLocationAsync(user)
+	            .whenComplete((visitedLocation, ex) -> {
+	                if (ex == null) {
+	                    log.info("User {} visited location: {} at {}", 
+	                             user.getUserName(), 
+	                             visitedLocation.location, 
+	                             visitedLocation.timeVisited);
+	                } else {
+	                    log.error("Error tracking location for user {}: {}", 
+	                              user.getUserName(), ex.getMessage());
+	                }
+	            }))
+	        .collect(Collectors.toList());
+	}
+	
+	public CompletableFuture<VisitedLocation> trackUserLocationAsync(User user) {
+	    return CompletableFuture.supplyAsync(() -> trackUserLocation(user), executorService);
+	}
+
 
 	public List<Attraction> getNearByAttractions(VisitedLocation visitedLocation) {
 		
-		ExecutorService executorService = Executors.newCachedThreadPool();
 		List<Attraction> attractions = gpsUtil.getAttractions();
 		
 		List<CompletableFuture<Double>> futuresList = attractions.stream()
@@ -145,6 +163,10 @@ public class TourGuideService {
 		    .map(Pair::getLeft)
 		    .collect(Collectors.toList());
 
+		for (Attraction attra: nearestAttractions) { 
+			log.info("nearest : {}", attra.attractionName);
+		}
+		
 		return nearestAttractions;
 		
 	}
