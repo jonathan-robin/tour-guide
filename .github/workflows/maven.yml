@@ -36,6 +36,7 @@ jobs:
 
     - name: Run the Maven verify phase
       run: mvn verify
+      working-directory: TourGuide
 
     # - name: Build with Maven
     #   run: mvn --batch-mode --update-snapshots verify
