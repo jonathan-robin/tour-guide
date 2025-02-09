@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -107,14 +108,34 @@ public class TourGuideService {
 		return visitedLocation;
 	}
 	
-	public List<CompletableFuture<VisitedLocation>> trackUsersLocationsAsync(List<User> users) {
-	    return users.stream()
+//	public List<CompletableFuture<VisitedLocation>> trackUsersLocationsAsync(List<User> users) {
+//	    return users.stream()
+//	        .map(user -> CompletableFuture.supplyAsync(() -> trackUserLocation(user), executorService)
+//	            .whenComplete((visitedLocation, ex) -> {
+//	                if (ex != null)
+//	                    log.warn("Error tracking location for user {}: {}", user.getUserName(), ex.getMessage());
+//	            }))
+//	        .collect(Collectors.toList());
+//	}
+	
+	public List<VisitedLocation> trackUsersLocationsAsync(List<User> users) {
+		
+		List<VisitedLocation> visitedLocations = Collections.synchronizedList(new ArrayList<>());
+		 
+		 List<CompletableFuture<Void>> futures = users.stream()
 	        .map(user -> CompletableFuture.supplyAsync(() -> trackUserLocation(user), executorService)
-	            .whenComplete((visitedLocation, ex) -> {
-	                if (ex != null)
-	                    log.warn("Error tracking location for user {}: {}", user.getUserName(), ex.getMessage());
+	            .thenAccept(visitedLocation -> {
+	            	visitedLocations.add(visitedLocation);
+	            })
+	            .exceptionally(ex -> {
+                	log.warn("Error tracking location for user {}: {}", user.getUserName(), ex.getMessage());
+                	return null;
 	            }))
 	        .collect(Collectors.toList());
+
+	    CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+
+	    return visitedLocations;
 	}
 	
 

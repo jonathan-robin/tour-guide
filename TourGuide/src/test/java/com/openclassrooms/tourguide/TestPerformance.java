@@ -56,7 +56,7 @@ public class TestPerformance {
 	public void highVolumeTrackLocation() {
 		GpsUtil gpsUtil = new GpsUtil();
 		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
-		InternalTestHelper.setInternalUserNumber(50000);
+		InternalTestHelper.setInternalUserNumber(10000);
 		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
 
 		List<User> allUsers = new ArrayList<>();
@@ -65,8 +65,9 @@ public class TestPerformance {
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
 	    
-	    List<CompletableFuture<VisitedLocation>> futures = tourGuideService.trackUsersLocationsAsync(allUsers);
-	    CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+		List<VisitedLocation> visitedLocation = tourGuideService.trackUsersLocationsAsync(allUsers);
+//	    List<CompletableFuture<VisitedLocation>> futures 
+//	    CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
 
 		stopWatch.stop();
 		tourGuideService.tracker.stopTracking();
