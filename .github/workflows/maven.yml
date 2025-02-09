@@ -26,6 +26,8 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
+      - name: Afficher le chemin courant
+        run: pwd
       - name: Build with Maven (with debug output)
         run: mvn clean install -X
         working-directory: TourGuide
@@ -44,6 +46,8 @@ jobs:
       - name: Run the Maven verify phase
         run: mvn verify
         working-directory: TourGuide
+      - name: Afficher le chemin courant
+        run: pwd
 
   artifact:
     runs-on: ubuntu-latest
