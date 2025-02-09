@@ -46,24 +46,42 @@
 			<artifactId>junit-jupiter-api</artifactId>
 			<scope>test</scope>
 		</dependency>
-
 		<dependency>
-			<groupId>gpsUtil</groupId>
-			<artifactId>gpsUtil</artifactId>
-			<version>1.0.0</version>
+		    <groupId>org.apache.commons</groupId>
+		    <artifactId>commons-lang3</artifactId>
+		    <version>3.12.0</version> <!-- Choisis la dernière version disponible -->
 		</dependency>
 
 		<dependency>
-			<groupId>tripPricer</groupId>
-			<artifactId>tripPricer</artifactId>
-			<version>1.0.0</version>
+		    <groupId>gpsUtil</groupId>
+		    <artifactId>gpsUtil</artifactId>
+		    <version>1.0.0</version>
+		    <scope>system</scope>
+		    <systemPath>C:/Users/robin/OneDrive/Bureau/JavaPathENProject8/TourGuide/libs/gpsUtil.jar</systemPath>
+		</dependency>
+		
+		<dependency>
+		    <groupId>tripPricer</groupId>
+		    <artifactId>tripPricer</artifactId>
+		    <version>1.0.0</version>
+		    <scope>system</scope>
+		    <systemPath>C:/Users/robin/OneDrive/Bureau/JavaPathENProject8/TourGuide/libs/TripPricer.jar</systemPath>
+		</dependency>
+		<dependency>
+		    <groupId>org.projectlombok</groupId>
+		    <artifactId>lombok</artifactId>
+		    <version>1.18.36</version>
+		    <scope>provided</scope>
+		</dependency>
+		
+		<dependency>
+		    <groupId>rewardCentral</groupId>
+		    <artifactId>rewardCentral</artifactId>
+		    <version>1.0.0</version>
+		    <scope>system</scope>
+		    <systemPath>C:/Users/robin/OneDrive/Bureau/JavaPathENProject8/TourGuide/libs/RewardCentral.jar</systemPath>
 		</dependency>
 
-		<dependency>
-			<groupId>rewardCentral</groupId>
-			<artifactId>rewardCentral</artifactId>
-			<version>1.0.0</version>
-		</dependency>
 	</dependencies>
 
 	<build>

@@ -5,9 +5,13 @@ import com.openclassrooms.tourguide.tracker.Tracker;
 import com.openclassrooms.tourguide.user.User;
 import com.openclassrooms.tourguide.user.UserReward;
 
+import lombok.*;
+import lombok.extern.slf4j.Slf4j;
+
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -15,9 +19,15 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -31,6 +41,7 @@ import tripPricer.Provider;
 import tripPricer.TripPricer;
 
 @Service
+@Slf4j
 public class TourGuideService {
 	private Logger logger = LoggerFactory.getLogger(TourGuideService.class);
 	private final GpsUtil gpsUtil;
@@ -56,7 +67,7 @@ public class TourGuideService {
 	}
 
 	public List<UserReward> getUserRewards(User user) {
-		return user.getUserRewards();
+		return new CopyOnWriteArrayList<>(user.getUserRewards());
 	}
 
 	public VisitedLocation getUserLocation(User user) {
@@ -91,19 +102,51 @@ public class TourGuideService {
 	public VisitedLocation trackUserLocation(User user) {
 		VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
 		user.addToVisitedLocations(visitedLocation);
+		for (VisitedLocation visit : user.getVisitedLocations()) {
+		}
+
 		rewardsService.calculateRewards(user);
+		log.info(user.getUserRewards().toString());
 		return visitedLocation;
 	}
 
 	public List<Attraction> getNearByAttractions(VisitedLocation visitedLocation) {
-		List<Attraction> nearbyAttractions = new ArrayList<>();
-		for (Attraction attraction : gpsUtil.getAttractions()) {
-			if (rewardsService.isWithinAttractionProximity(attraction, visitedLocation.location)) {
-				nearbyAttractions.add(attraction);
-			}
+		
+		ExecutorService executorService = Executors.newCachedThreadPool();
+		List<Attraction> attractions = gpsUtil.getAttractions();
+		
+		List<CompletableFuture<Double>> futuresList = attractions.stream()
+				.map((Attraction attraction) -> CompletableFuture.supplyAsync(() -> {
+			        try {
+			            return rewardsService.getDistance(attraction, visitedLocation.location);
+			        } catch (Exception ex) {
+			            System.err.println("Erreur lors du traitement de l'attraction: " + attraction.attractionName);
+			            ex.printStackTrace();
+			            return 1000000.0; 
+			        }
+			    }, executorService))
+			    .collect(Collectors.toList());
+
+		CompletableFuture.allOf(futuresList.toArray(new CompletableFuture[0])).join();
+
+		List<Pair<Attraction, Double>> attractionDistances = new ArrayList<>();
+		for (int i = 0; i < attractions.size(); i++) {
+		    try {
+		        Double distance = futuresList.get(i).get();
+		        attractionDistances.add(Pair.of(attractions.get(i), distance));
+		    } catch (InterruptedException | ExecutionException e) {
+		        e.printStackTrace();
+		    }
 		}
 
-		return nearbyAttractions;
+		List<Attraction> nearestAttractions = attractionDistances.stream()
+		    .sorted(Comparator.comparing(Pair::getRight))
+		    .limit(5) 
+		    .map(Pair::getLeft)
+		    .collect(Collectors.toList());
+
+		return nearestAttractions;
+		
 	}
 
 	private void addShutDownHook() {
