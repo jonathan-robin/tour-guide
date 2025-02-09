@@ -53,15 +53,10 @@ jobs:
     needs: [build, test]
     
     steps:
-      - name: List files in the current directory (for debugging)
-        run: ls -alh
-      - name: Create artifact.txt (si nécessaire)
-        run: echo "This is my artifact" > artifact.txt
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: my-artifact
-          path: ./artifact.txt 
-          retention-days: 5
-
+    - name: Upload JAR file as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: java-artifact
+        path: ./target/*.jar
+        retention-days: 7
     
