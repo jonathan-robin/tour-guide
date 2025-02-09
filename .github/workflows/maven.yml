@@ -56,3 +56,4 @@ jobs:
           name: java-artifact
           path: ./target/*.jar
           retention-days: 7
+        working-directory: TourGuide
