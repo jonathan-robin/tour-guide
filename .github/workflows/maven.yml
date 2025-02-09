@@ -26,13 +26,12 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
-      - name: Build with Maven
-        run: mvn clean install
+      - name: Build with Maven (with debug output)
+        run: mvn clean install -X
         working-directory: TourGuide
       - name: Check for build output and list target directory
         run: |
           echo "Checking build logs:"
-          cat TourGuide/target/*.log || echo "No build logs found"
           ls -la TourGuide/target || echo "Target directory not found"
         working-directory: TourGuide
 
@@ -63,3 +62,4 @@ jobs:
           name: java-artifact
           path: TourGuide/target/*.jar
           retention-days: 7
+
