@@ -109,24 +109,14 @@ public class TourGuideService {
 	
 	public List<CompletableFuture<VisitedLocation>> trackUsersLocationsAsync(List<User> users) {
 	    return users.stream()
-	        .map(user -> trackUserLocationAsync(user)
+	        .map(user -> CompletableFuture.supplyAsync(() -> trackUserLocation(user), executorService)
 	            .whenComplete((visitedLocation, ex) -> {
-	                if (ex == null) {
-	                    log.info("User {} visited location: {} at {}", 
-	                             user.getUserName(), 
-	                             visitedLocation.location, 
-	                             visitedLocation.timeVisited);
-	                } else {
-	                    log.error("Error tracking location for user {}: {}", 
-	                              user.getUserName(), ex.getMessage());
-	                }
+	                if (ex != null)
+	                    log.warn("Error tracking location for user {}: {}", user.getUserName(), ex.getMessage());
 	            }))
 	        .collect(Collectors.toList());
 	}
 	
-	public CompletableFuture<VisitedLocation> trackUserLocationAsync(User user) {
-	    return CompletableFuture.supplyAsync(() -> trackUserLocation(user), executorService);
-	}
 
 
 	public List<Attraction> getNearByAttractions(VisitedLocation visitedLocation) {
