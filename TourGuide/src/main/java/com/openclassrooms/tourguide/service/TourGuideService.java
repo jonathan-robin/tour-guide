@@ -101,6 +101,17 @@ public class TourGuideService {
 		return providers;
 	}
 
+	/**
+	 * Tracks the location of a user and calculates the associated rewards.
+	 * <p>
+	 * This method uses the GPS service to get the user's current location,
+	 * then adds this location to the user's visited locations list. After that,
+	 * it calculates the rewards for the user through the rewards service.
+	 * 
+	 * @param user The user whose location needs to be tracked.
+	 * @return The visited location of the user as a {@link VisitedLocation}.
+	 * @throws Exception If an issue occurs while retrieving the location or calculating the rewards.
+	 */
 	public VisitedLocation trackUserLocation(User user) {
 		VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
 		user.addToVisitedLocations(visitedLocation);
