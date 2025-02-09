@@ -51,12 +51,17 @@ jobs:
 
     runs-on: ubuntu-latest
     needs: [build, test]
+    
     steps:
-    - name: 'Upload Artifact'
-      uses: actions/upload-artifact@v4
-      with:
-        name: my-artifact
-        path: ./TourGuide/artifact.txt
-        retention-days: 5
+      - name: List files in the current directory (for debugging)
+        run: ls -alh
+      - name: Create artifact.txt (si nécessaire)
+        run: echo "This is my artifact" > artifact.txt
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: my-artifact
+          path: ./artifact.txt 
+          retention-days: 5
 
     
