@@ -1,6 +1,0 @@
-# Ignore all files in target/ directory
-/target/*
-
-# But keep the .jar files
-!/target/*.jar
-
