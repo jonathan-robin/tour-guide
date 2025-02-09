@@ -49,6 +49,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build, test]
     steps:
+      - name: Afficher le chemin courant
+        run: pwd
       - name: List target directory contents (before upload)
         run: |
           ls -la ./target || echo "Target directory not found"
