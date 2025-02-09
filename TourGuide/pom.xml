@@ -17,7 +17,7 @@
 		<java.version>17</java.version>
 		    <libs.dir>${project.basedir}/libs</libs.dir>
 	</properties>
-
+	<packaging>jar</packaging>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
