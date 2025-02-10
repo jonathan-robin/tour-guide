@@ -48,12 +48,6 @@ public class Tracker extends Thread {
 
 			List<User> users = tourGuideService.getAllUsers();
 			
-			/* for testing purpose */
-			User userTest = new User(new UUID(999L, 888L), "testabcdef", "testabcdef", "testabcdef"); 
-			users.add(userTest);
-			users.forEach(u -> log.info("userName: {}", u.getUserPreferences()));
-			/* */
-			
 			logger.debug("Begin Tracker. Tracking " + users.size() + " users.");
 			stopWatch.start();
 			users.forEach(u -> tourGuideService.trackUserLocation(u));
