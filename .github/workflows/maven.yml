@@ -60,8 +60,21 @@ jobs:
           sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
           sudo apt-get update
           sudo apt-get install -y docker-ce docker-ce-cli containerd.io
-      - name: Check Docker version
-        run: docker --version
+          - name: Check Docker version
+            run: docker --version
+          
+          - name: Install Docker Compose (if missing)
+            run: |
+              if ! docker compose version &> /dev/null; then
+                echo "Docker Compose plugin not found, installing standalone version..."
+                sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+                sudo chmod +x /usr/local/bin/docker-compose
+              fi
+          
+          - name: Check Docker Compose version
+            run: |
+              docker compose version || docker-compose --version
+
       - name: Check Docker Compose version
         run: docker-compose --version
       - name: Docker Login
