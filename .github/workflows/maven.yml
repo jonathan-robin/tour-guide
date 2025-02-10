@@ -17,8 +17,10 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
-      - name: Afficher le chemin courant
-        run: pwd
+      - name: Install local Maven dependencies
+        run: |
+          mkdir -p ~/.m2/repository/gpsUtil/gpsUtil/1.0.0
+          cp -r ./maven_dependencies/* ~/.m2/repository/
       - name: Build with Maven (with debug output)
         run: mvn clean install -X
         working-directory: TourGuide
