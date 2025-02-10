@@ -55,4 +55,27 @@ jobs:
       - name: Afficher le chemin courant
         run: pwd
 
+  package:
+    runs-on: ubuntu-latest  # Ajoutez ceci pour spécifier l'environnement
+    name: Build Docker Image
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Docker
+        run: |
+          apk add --no-cache docker-cli-compose
+      - name: Docker Login
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+      - name: Build Docker Image
+        run: |
+          ./mvnw install -PbuildDocker -DskipTests=true -DpushImage \
+            -Dhttps.protocols=TLSv1.2 \
+            -Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository \
+            -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN \
+            -Dorg.slf4j.simpleLogger.showDateTime=true \
+            -Djava.awt.headless=true \
+            --batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true
+      - name: Build and Push Docker Image
+        run: |
+          docker compose build
+          docker compose push
 
