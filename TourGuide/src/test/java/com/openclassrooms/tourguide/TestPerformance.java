@@ -41,9 +41,6 @@ public class TestPerformance {
 	@Autowired
 	private TourGuideService tourGuideService;
 	
-	@Autowired
-	private InternalTestHelper testHelper;
-	
    @BeforeEach
     public void setUp() {
 	   tourGuideService = new TourGuideService(gpsUtil, rewardsService, userService);
