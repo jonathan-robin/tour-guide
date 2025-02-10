@@ -13,9 +13,9 @@ COPY libs/RewardCentral.jar /app/libs/RewardCentral.jar
 COPY libs/TripPricer.jar /app/libs/TripPricer.jar
 
 # Installer les fichiers JAR dans le répertoire local de Maven
-RUN mvn install:install-file -Dfile=/libs/gpsUtil.jar -DgroupId=gpsUtil -DartifactId=gpsUtil -Dversion=1.0.0 -Dpackaging=jar
-RUN mvn install:install-file -Dfile=/libs/RewardCentral.jar -DgroupId=rewardCentral -DartifactId=rewardCentral -Dversion=1.0.0 -Dpackaging=jar
-RUN mvn install:install-file -Dfile=/libs/TripPricer.jar -DgroupId=tripPricer -DartifactId=tripPricer -Dversion=1.0.0 -Dpackaging=jar
+RUN mvn install:install-file -Dfile=/app/libs/gpsUtil.jar -DgroupId=gpsUtil -DartifactId=gpsUtil -Dversion=1.0.0 -Dpackaging=jar
+RUN mvn install:install-file -Dfile=/app/libs/RewardCentral.jar -DgroupId=rewardCentral -DartifactId=rewardCentral -Dversion=1.0.0 -Dpackaging=jar
+RUN mvn install:install-file -Dfile=/app/libs/TripPricer.jar -DgroupId=tripPricer -DartifactId=tripPricer -Dversion=1.0.0 -Dpackaging=jar
 
 # Copier le fichier pom.xml
 COPY pom.xml .
