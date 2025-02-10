@@ -17,14 +17,6 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
-      - name: Verify the existence of JAR files
-        run: |
-          ls -l TourGuide/libs
-      - name: Check structure
-        run: |
-          echo "Current directory structure:"
-          ls -R /home/runner/work/tour-guide/tour-guide/TourGuide
-        working-directory: TourGuide
       - name: Install local Maven dependencies
         run: |
           echo "Current working directory: $(pwd)"
@@ -58,8 +50,6 @@ jobs:
       - name: Run the Maven verify phase
         run: mvn verify
         working-directory: TourGuide
-      - name: Afficher le chemin courant
-        run: pwd
 
   package:
     runs-on: ubuntu-latest
@@ -67,7 +57,6 @@ jobs:
     needs: [build, test]
     steps:
       - uses: actions/checkout@v4
-      
       - name: Install Docker
         run: |
           sudo apt-get update
@@ -77,10 +66,6 @@ jobs:
           sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
           sudo apt-get update
           sudo apt-get install -y docker-ce docker-ce-cli containerd.io
-          
-      - name: Check Docker version
-        run: docker --version
-
       - name: Install Docker Compose
         run: |
           if ! docker compose version &> /dev/null; then
@@ -88,17 +73,8 @@ jobs:
             sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
             sudo chmod +x /usr/local/bin/docker-compose
           fi
-
-      - name: Check Docker Compose version
-        run: docker compose version || docker-compose --version
-
       - name: Docker Login
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-
-      - name: Build Docker Image
-        run: mvn clean install -DskipTests=true
-        working-directory: TourGuide
-
       - name: Build and Push Docker Image
         working-directory: TourGuide
         run: |
