@@ -21,7 +21,7 @@ jobs:
         run: pwd
       - name: Build with Maven (with debug output)
         run: mvn clean install -X
-        working-directory: TourGuide 
+        working-directory: TourGuide
       - name: Upload JAR artifact
         uses: actions/upload-artifact@v4
         with:
@@ -54,8 +54,16 @@ jobs:
       - name: Set up Docker
         run: |
           sudo apt-get update
-          sudo apt-get install -y docker.io
-          sudo apt-get install -y docker-compose
+          sudo apt-get upgrade -y
+          sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+          sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+          sudo apt-get update
+          sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+      - name: Check Docker version
+        run: docker --version
+      - name: Check Docker Compose version
+        run: docker-compose --version
       - name: Docker Login
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
       - name: Build Docker Image
