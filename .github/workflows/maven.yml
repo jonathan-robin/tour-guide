@@ -84,6 +84,7 @@ jobs:
         working-directory: TourGuide
 
       - name: Build and Push Docker Image
+        working-directory: TourGuide
         run: |
           docker compose build
           docker compose push
