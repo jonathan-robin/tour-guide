@@ -8,9 +8,9 @@ RUN apk add --no-cache maven
 WORKDIR /app
 
 # Copier les fichiers JAR locaux dans le conteneur
-COPY libs/gpsUtil.jar /libs/gpsUtil.jar
-COPY libs/RewardCentral.jar /libs/RewardCentral.jar
-COPY libs/TripPricer.jar /libs/TripPricer.jar
+COPY libs/gpsUtil.jar /app/libs/gpsUtil.jar
+COPY libs/RewardCentral.jar /app/libs/RewardCentral.jar
+COPY libs/TripPricer.jar /app/libs/TripPricer.jar
 
 # Installer les fichiers JAR dans le répertoire local de Maven
 RUN mvn install:install-file -Dfile=/libs/gpsUtil.jar -DgroupId=gpsUtil -DartifactId=gpsUtil -Dversion=1.0.0 -Dpackaging=jar
