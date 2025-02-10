@@ -1,6 +1,9 @@
 # Utiliser l'image de base JDK 17
 FROM eclipse-temurin:17-jdk-alpine
 
+# Installer Maven
+RUN apk add --no-cache maven
+
 # Répertoire de travail dans le conteneur
 WORKDIR /app
 
@@ -17,7 +20,6 @@ RUN mvn install:install-file -Dfile=/libs/TripPricer.jar -DgroupId=tripPricer -D
 # Copier le fichier pom.xml
 COPY pom.xml .
 
-# Ne pas exécuter mvn dependency:go-offline car les dépendances sont déjà installées localement
 # Copier le reste de votre application dans l'image Docker
 COPY src /app/src
 
