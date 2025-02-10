@@ -8,8 +8,11 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.time.StopWatch;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import gpsUtil.GpsUtil;
@@ -26,8 +29,18 @@ import com.openclassrooms.tourguide.user.User;
 public class TestPerformance {
 
 	@Autowired
-	UserService userService;
+	private UserService userService;
 	
+	@Autowired
+	private RewardsService rewardsService;
+
+	@Autowired
+	private GpsUtil gpsUtil;
+	
+	@Autowired
+	private TourGuideService tourGuideService;
+
+
 	/**
 	 * 	
 	 * A note on performance improvements:
@@ -45,12 +58,11 @@ public class TestPerformance {
 	 * 
 	 * @throws Exception If any error occurs during the test execution.
 	 */
+	
 	@Test
 	public void highVolumeTrackLocation() {
-		GpsUtil gpsUtil = new GpsUtil();
-		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
 		InternalTestHelper.setInternalUserNumber(100);
-		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
+//		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
 
 		List<User> allUsers = new ArrayList<>();
 		allUsers = userService.getAllUsers();
@@ -94,13 +106,11 @@ public class TestPerformance {
 	 */
 	@Test
 	public void highVolumeGetRewards() {
-		GpsUtil gpsUtil = new GpsUtil();
-		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
 
 		InternalTestHelper.setInternalUserNumber(100);
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
-		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
+		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService, userService);
 
 		Attraction attraction = gpsUtil.getAttractions().get(0);
 		List<User> allUsers = new ArrayList<>();

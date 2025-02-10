@@ -33,14 +33,15 @@ import com.openclassrooms.tourguide.user.UserReward;
  * <p>Each test ensures that the reward system correctly associates users with rewards based on
  * their visited locations and the proximity to attractions.</p>
  */
-@SpringBootTest(classes = TourguideApplication.class)
+
+@SpringBootTest
 public class TestRewardsService {
 	
 	@Autowired
-	UserService userService;
+	private UserService userService;
 	
 	@Autowired
-	RewardsService rewardService;
+	private RewardsService rewardsService;
 
     /**
      * Tests that a user receives rewards based on their visited location.
@@ -57,7 +58,7 @@ public class TestRewardsService {
         RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
 
         InternalTestHelper.setInternalUserNumber(0);
-        TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
+        TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService, userService);
 
         User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
         Attraction attraction = gpsUtil.getAttractions().get(0);
@@ -99,14 +100,13 @@ public class TestRewardsService {
     @Test
     public void nearAllAttractions() {
         GpsUtil gpsUtil = new GpsUtil();
-        RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
         rewardsService.setProximityBuffer(Integer.MAX_VALUE);
 
         InternalTestHelper.setInternalUserNumber(1);
-        TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
+        TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService, userService);
 
         rewardsService.calculateRewards(userService.getAllUsers().get(0));
-        List<UserReward> userRewards = rewardService.getUserRewards(userService.getAllUsers().get(0));
+        List<UserReward> userRewards = rewardsService.getUserRewards(userService.getAllUsers().get(0));
         tourGuideService.tracker.stopTracking();
 
         assertEquals(gpsUtil.getAttractions().size(), userRewards.size(), 

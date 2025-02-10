@@ -14,8 +14,6 @@ public class UserReward {
 		this.rewardPoints = rewardPoints;
 	}
 	
-	
-	
 	public UserReward(VisitedLocation visitedLocation, Attraction attraction) {
 		this.visitedLocation = visitedLocation;
 		this.attraction = attraction;

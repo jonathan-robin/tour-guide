@@ -32,7 +32,7 @@ public class UserService {
 	// Database connection will be used for external users, but for testing purposes
 	// internal users are provided and stored in memory
 	public final Map<String, User> userMap = new HashMap<>();
-	
+
 	/**
 	 * Retrieves a user by their username.
 	 *

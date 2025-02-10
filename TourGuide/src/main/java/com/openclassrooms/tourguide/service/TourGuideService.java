@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import gpsUtil.GpsUtil;
@@ -27,15 +28,22 @@ import gpsUtil.location.VisitedLocation;
 @Service
 @Slf4j
 public class TourGuideService {
+	
+	
 	private Logger logger = LoggerFactory.getLogger(TourGuideService.class);
-	private final GpsUtil gpsUtil;
-	private final RewardsService rewardsService;
+	
+	@Autowired
+	private GpsUtil gpsUtil;
+	
+	@Autowired
+	private RewardsService rewardsService;
 	
 //	ExecutorService executorService = Executors.newCachedThreadPool();
 	ExecutorService executorService = Executors.newFixedThreadPool(10);
 	public final Tracker tracker;
 	boolean testMode = true;	
 	
+	@Autowired
 	private UserService userService;
 
 	/**
@@ -48,9 +56,10 @@ public class TourGuideService {
 	 * @param gpsUtil The GPS utility used to get the location data.
 	 * @param rewardsService The rewards service used to manage user rewards.
 	 */
-	public TourGuideService(GpsUtil gpsUtil, RewardsService rewardsService) {
+	public TourGuideService(GpsUtil gpsUtil, RewardsService rewardsService, UserService userService) {
 	    this.gpsUtil = gpsUtil;
 	    this.rewardsService = rewardsService;
+	    this.userService = userService;
 	    
 	    Locale.setDefault(Locale.US);
 
