@@ -3,6 +3,7 @@ version: '3.8'
 services:
   app:
     build: .
+    image: mojogrojo/tourguide-app:latest  # Le nom que tu veux pour l'image
     ports:
       - "8080:8080"
     environment:
