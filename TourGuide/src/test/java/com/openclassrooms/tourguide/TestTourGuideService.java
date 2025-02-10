@@ -6,21 +6,20 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 import java.util.UUID;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import gpsUtil.GpsUtil;
-import gpsUtil.location.Attraction;
 import gpsUtil.location.VisitedLocation;
 import lombok.extern.slf4j.Slf4j;
 import rewardCentral.RewardCentral;
+
+import com.openclassrooms.tourguide.dto.UserNearByAttractionDto;
 import com.openclassrooms.tourguide.helper.InternalTestHelper;
 import com.openclassrooms.tourguide.service.RewardsService;
 import com.openclassrooms.tourguide.service.TourGuideService;
 import com.openclassrooms.tourguide.user.User;
 import tripPricer.Provider;
 
-@Slf4j
 public class TestTourGuideService {
 
 	@Test
@@ -103,8 +102,8 @@ public class TestTourGuideService {
 
 		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
 		VisitedLocation visitedLocation = tourGuideService.trackUserLocation(user);
-		List<Attraction> attractions = tourGuideService.getNearByAttractions(visitedLocation);
-
+		List<UserNearByAttractionDto> attractions = tourGuideService.getFiveNearestAttractions(visitedLocation, user);
+		
 		tourGuideService.tracker.stopTracking();
 
 		assertEquals(5, attractions.size());

@@ -1,6 +1,7 @@
 package com.openclassrooms.tourguide.tracker;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -12,6 +13,9 @@ import org.slf4j.LoggerFactory;
 import com.openclassrooms.tourguide.service.TourGuideService;
 import com.openclassrooms.tourguide.user.User;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class Tracker extends Thread {
 	private Logger logger = LoggerFactory.getLogger(Tracker.class);
 	private static final long trackingPollingInterval = TimeUnit.MINUTES.toSeconds(5);
@@ -43,6 +47,13 @@ public class Tracker extends Thread {
 			}
 
 			List<User> users = tourGuideService.getAllUsers();
+			
+			/* for testing purpose */
+			User userTest = new User(new UUID(999L, 888L), "testabcdef", "testabcdef", "testabcdef"); 
+			users.add(userTest);
+			users.forEach(u -> log.info("userName: {}", u.getUserPreferences()));
+			/* */
+			
 			logger.debug("Begin Tracker. Tracking " + users.size() + " users.");
 			stopWatch.start();
 			users.forEach(u -> tourGuideService.trackUserLocation(u));

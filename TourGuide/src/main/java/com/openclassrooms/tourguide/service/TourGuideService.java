@@ -1,5 +1,6 @@
 package com.openclassrooms.tourguide.service;
 
+import com.openclassrooms.tourguide.dto.UserNearByAttractionDto;
 import com.openclassrooms.tourguide.helper.InternalTestHelper;
 import com.openclassrooms.tourguide.tracker.Tracker;
 import com.openclassrooms.tourguide.user.User;
@@ -83,7 +84,9 @@ public class TourGuideService {
 	}
 
 	public List<User> getAllUsers() {
+	
 		return internalUserMap.values().stream().collect(Collectors.toList());
+
 	}
 
 	public void addUser(User user) {
@@ -150,48 +153,86 @@ public class TourGuideService {
 
 	    return visitedLocations;
 	}
+	/**
+	 * Retrieves the five nearest tourist attractions to the user's current location and calculates 
+	 * the reward points for each attraction.
+	 * 
+	 * This method performs the following tasks in two main steps:
+	 * 1. It calculates the distance from the user's location to each attraction in parallel.
+	 * 2. It then calculates the reward points for each attraction in parallel and returns a list of DTOs 
+	 *    (Data Transfer Objects) containing details of the nearest attractions.
+	 * 
+	 * @param visitedLocation The location of the user, including latitude and longitude.
+	 * @param user The user whose nearest attractions and reward points are being calculated.
+	 * @return A list of DTOs containing the details of the five nearest attractions, including:
+	 *         - Name of the attraction
+	 *         - Coordinates (latitude and longitude) of the attraction
+	 *         - Coordinates (latitude and longitude) of the user's location
+	 *         - Distance (in miles) between the user and each attraction
+	 *         - Reward points for visiting each attraction
+	 * 
+	 * @throws Exception If there is any error in processing the attractions, calculating the distance, 
+	 *                   or retrieving reward points.
+	 * 
+	 * @see UserNearByAttractionDto
+	 * @see RewardsService
+	 * @see Attraction
+	 * @see User
+	 */
+	public List<UserNearByAttractionDto> getFiveNearestAttractions(VisitedLocation visitedLocation, User user) {
 
+	    List<Attraction> attractions = gpsUtil.getAttractions();
 
-	public List<Attraction> getNearByAttractions(VisitedLocation visitedLocation) {
-		
-		List<Attraction> attractions = gpsUtil.getAttractions();
-		
-		List<CompletableFuture<Double>> futuresList = attractions.stream()
-				.map((Attraction attraction) -> CompletableFuture.supplyAsync(() -> {
-			        try {
-			            return rewardsService.getDistance(attraction, visitedLocation.location);
-			        } catch (Exception ex) {
-			            System.err.println("Erreur lors du traitement de l'attraction: " + attraction.attractionName);
-			            ex.printStackTrace();
-			            return 1000000.0; 
-			        }
-			    }, executorService))
-			    .collect(Collectors.toList());
+	    /* step 1 : Calculate distances to all attractions asynchronously */
+	    List<CompletableFuture<Pair<Attraction, Double>>> futureDistances = attractions.stream()
+	        .map(attraction -> CompletableFuture.supplyAsync(() -> {
+	            try {
+	                /* Calculate the distance from the user to the attraction */
+	                double distance = rewardsService.getDistance(attraction, visitedLocation.location);
+	                return Pair.of(attraction, distance);
+	            } catch (Exception ex) {
+	                log.error("Error processing attraction {}: {}", attraction.attractionName, ex.getMessage());
+	                return Pair.of(attraction, Double.MAX_VALUE); /* Return a max distance in case of error - filter out errors */
+	            }
+	        }, executorService))
+	        .collect(Collectors.toList());
 
-		CompletableFuture.allOf(futuresList.toArray(new CompletableFuture[0])).join();
+	    /* Collect and sort the attractions by distance, keeping only the 5 closest attractions */
+	    List<Pair<Attraction, Double>> attractionDistances = futureDistances.stream()
+	        .map(CompletableFuture::join)
+	        .sorted(Comparator.comparing(Pair::getRight))
+	        .limit(5)  /* Keep the 5 nearest attractions */
+	        .collect(Collectors.toList());
 
-		List<Pair<Attraction, Double>> attractionDistances = new ArrayList<>();
-		for (int i = 0; i < attractions.size(); i++) {
-		    try {
-		        Double distance = futuresList.get(i).get();
-		        attractionDistances.add(Pair.of(attractions.get(i), distance));
-		    } catch (InterruptedException | ExecutionException e) {
-		        e.printStackTrace();
-		    }
-		}
+	    /* step 2 : Calculate reward points for each attraction asynchronously */
+	    List<CompletableFuture<UserNearByAttractionDto>> futureDtos = attractionDistances.stream()
+	        .map(pair -> CompletableFuture.supplyAsync(() -> {
+	            try {
+	                Attraction attraction = pair.getLeft();
+	                double distance = pair.getRight();
+	                /* Calculate the reward points for the user visiting this attraction */
+	                int rewardPoints = rewardsService.getRewardPoints(attraction, user);
 
-		List<Attraction> nearestAttractions = attractionDistances.stream()
-		    .sorted(Comparator.comparing(Pair::getRight))
-		    .limit(5) 
-		    .map(Pair::getLeft)
-		    .collect(Collectors.toList());
+	                return new UserNearByAttractionDto(
+	                        attraction.attractionName, 
+	                        attraction.latitude, attraction.longitude,
+	                        visitedLocation.location.latitude, visitedLocation.location.longitude,
+	                        distance, rewardPoints
+	                );
+	            } catch (Exception ex) {
+	                log.error("Error processing attraction {}: {}", pair.getLeft().attractionName, ex.getMessage());
+	                return new UserNearByAttractionDto(
+	                        pair.getLeft().attractionName, 
+	                        pair.getLeft().latitude, pair.getLeft().longitude,
+	                        visitedLocation.location.latitude, visitedLocation.location.longitude,
+	                        pair.getRight(), 0
+	                );
+	            }
+	        }, executorService))
+	        .collect(Collectors.toList());
 
-		for (Attraction attra: nearestAttractions) { 
-			log.info("nearest : {}", attra.attractionName);
-		}
-		
-		return nearestAttractions;
-		
+	    /** Wait for all asynchronous tasks to complete and return the results */
+	    return futureDtos.stream().map(CompletableFuture::join).collect(Collectors.toList());
 	}
 
 	private void addShutDownHook() {
