@@ -49,7 +49,8 @@ public class TourGuideService {
 	private final GpsUtil gpsUtil;
 	private final RewardsService rewardsService;
 	private final TripPricer tripPricer = new TripPricer();
-	ExecutorService executorService = Executors.newCachedThreadPool();
+//	ExecutorService executorService = Executors.newCachedThreadPool();
+	ExecutorService executorService = Executors.newFixedThreadPool(10);
 	public final Tracker tracker;
 	boolean testMode = true;
 

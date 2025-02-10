@@ -29,7 +29,8 @@ public class RewardsService {
     private int defaultProximityBuffer = 10;
 	private int proximityBuffer = defaultProximityBuffer;
 	private int attractionProximityRange = 200;
-	ExecutorService executorService = Executors.newCachedThreadPool();
+//	ExecutorService executorService = Executors.newCachedThreadPool();
+	ExecutorService executorService = Executors.newFixedThreadPool(45);
 	private final GpsUtil gpsUtil;
 	private final RewardCentral rewardsCentral;
 	
