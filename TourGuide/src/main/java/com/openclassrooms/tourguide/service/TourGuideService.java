@@ -40,8 +40,7 @@ public class TourGuideService {
 	
 //	ExecutorService executorService = Executors.newCachedThreadPool();
 	ExecutorService executorService = Executors.newFixedThreadPool(10);
-	public final Tracker tracker;
-	boolean testMode = true;	
+	public final Tracker tracker;	
 	
 	@Autowired
 	private UserService userService;
@@ -62,13 +61,6 @@ public class TourGuideService {
 	    this.userService = userService;
 	    
 	    Locale.setDefault(Locale.US);
-
-	    if (testMode) {
-	        logger.info("TestMode enabled");
-	        logger.debug("Initializing users");
-	        userService.initializeInternalUsers();
-	        logger.debug("Finished initializing users");
-	    }
 	    tracker = new Tracker(this);
 	    addShutDownHook();
 	}
@@ -87,21 +79,6 @@ public class TourGuideService {
 	    VisitedLocation visitedLocation = (user.getVisitedLocations().size() > 0) ? user.getLastVisitedLocation()
 	            : trackUserLocation(user);
 	    return visitedLocation;
-	}
-
-
-	/**
-	 * Adds a user to the internal user map.
-	 *
-	 * <p>This method adds a user to the system only if they are not already present. 
-	 * If the user is not already in the internal user map, they are added.</p>
-	 *
-	 * @param user The user to be added to the system.
-	 */
-	public void addUser(User user) {
-	    if (!userService.userMap.containsKey(user.getUserName())) {
-	    	userService.userMap.put(user.getUserName(), user);
-	    }
 	}
 
 

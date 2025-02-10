@@ -9,6 +9,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.time.StopWatch;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,15 @@ public class TestPerformance {
 	
 	@Autowired
 	private TourGuideService tourGuideService;
-
+	
+	@Autowired
+	private InternalTestHelper testHelper;
+	
+   @BeforeEach
+    public void setUp() {
+	   tourGuideService = new TourGuideService(gpsUtil, rewardsService, userService);
+    }
+	
 
 	/**
 	 * 	
@@ -62,7 +71,6 @@ public class TestPerformance {
 	@Test
 	public void highVolumeTrackLocation() {
 		InternalTestHelper.setInternalUserNumber(100);
-//		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
 
 		List<User> allUsers = new ArrayList<>();
 		allUsers = userService.getAllUsers();
@@ -110,7 +118,6 @@ public class TestPerformance {
 		InternalTestHelper.setInternalUserNumber(100);
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
-		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService, userService);
 
 		Attraction attraction = gpsUtil.getAttractions().get(0);
 		List<User> allUsers = new ArrayList<>();

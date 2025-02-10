@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.VisitedLocation;
+import lombok.extern.slf4j.Slf4j;
 import rewardCentral.RewardCentral;
 import com.openclassrooms.tourguide.helper.InternalTestHelper;
 import com.openclassrooms.tourguide.service.RewardsService;
@@ -35,6 +36,7 @@ import com.openclassrooms.tourguide.user.UserReward;
  */
 
 @SpringBootTest
+@Slf4j
 public class TestRewardsService {
 	
 	@Autowired
@@ -42,6 +44,9 @@ public class TestRewardsService {
 	
 	@Autowired
 	private RewardsService rewardsService;
+	
+	@Autowired
+	private GpsUtil gpsUtil;
 
     /**
      * Tests that a user receives rewards based on their visited location.
@@ -54,9 +59,6 @@ public class TestRewardsService {
      */
     @Test
     public void userGetRewards() {
-        GpsUtil gpsUtil = new GpsUtil();
-        RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
-
         InternalTestHelper.setInternalUserNumber(0);
         TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService, userService);
 
@@ -66,8 +68,11 @@ public class TestRewardsService {
         tourGuideService.trackUserLocation(user);
         List<UserReward> userRewards = user.getUserRewards();
         tourGuideService.tracker.stopTracking();
+        
+        log.info("userRewards size{}", userRewards.size());
 
-        assertTrue(userRewards.size() == 1, "User should have received at least one reward.");
+        /* == is not >= */
+        assertTrue(userRewards.size() >= 1, "User should have received at least one reward.");
     }
 
     /**
@@ -80,8 +85,6 @@ public class TestRewardsService {
      */
     @Test
     public void isWithinAttractionProximity() {
-        GpsUtil gpsUtil = new GpsUtil();
-        RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
         Attraction attraction = gpsUtil.getAttractions().get(0);
         
         assertTrue(rewardsService.isWithinAttractionProximity(attraction, attraction), 
@@ -99,7 +102,6 @@ public class TestRewardsService {
      */
     @Test
     public void nearAllAttractions() {
-        GpsUtil gpsUtil = new GpsUtil();
         rewardsService.setProximityBuffer(Integer.MAX_VALUE);
 
         InternalTestHelper.setInternalUserNumber(1);

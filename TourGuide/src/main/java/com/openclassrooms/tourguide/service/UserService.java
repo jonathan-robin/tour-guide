@@ -2,9 +2,11 @@ package com.openclassrooms.tourguide.service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
@@ -14,8 +16,10 @@ import java.util.stream.IntStream;
 import org.springframework.stereotype.Service;
 
 import com.openclassrooms.tourguide.helper.InternalTestHelper;
+import com.openclassrooms.tourguide.tracker.Tracker;
 import com.openclassrooms.tourguide.user.User;
 
+import gpsUtil.GpsUtil;
 import gpsUtil.location.Location;
 import gpsUtil.location.VisitedLocation;
 import lombok.extern.slf4j.Slf4j;
@@ -29,9 +33,20 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class UserService {
 	
+	boolean testMode = true;
+	
 	// Database connection will be used for external users, but for testing purposes
 	// internal users are provided and stored in memory
 	public final Map<String, User> userMap = new HashMap<>();
+	
+	public UserService() {
+	    if (testMode) {
+	        log.info("TestMode enabled");
+	        log.debug("Initializing users");
+	        initializeInternalUsers();
+	        log.debug("Finished initializing users");
+	    }
+	}
 
 	/**
 	 * Retrieves a user by their username.
@@ -56,6 +71,20 @@ public class UserService {
 	    return userMap.values().stream().collect(Collectors.toList());
 	}
 
+
+	/**
+	 * Adds a user to the internal user map.
+	 *
+	 * <p>This method adds a user to the system only if they are not already present. 
+	 * If the user is not already in the internal user map, they are added.</p>
+	 *
+	 * @param user The user to be added to the system.
+	 */
+	public void addUser(User user) {
+	    if (!userMap.containsKey(user.getUserName())) {
+	    	userMap.put(user.getUserName(), user);
+	    }
+	}
 	
 	
 	/**********************************************************************************
@@ -141,6 +170,11 @@ public class UserService {
 	private Date getRandomTime() {
 	    LocalDateTime localDateTime = LocalDateTime.now().minusDays(new Random().nextInt(30));
 	    return Date.from(localDateTime.toInstant(ZoneOffset.UTC));
+	}
+	
+	public void removeAllUsers() { 
+		if (testMode)
+			userMap.clear();
 	}
     
 
