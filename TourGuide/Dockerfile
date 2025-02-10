@@ -20,11 +20,11 @@ RUN mvn install:install-file -Dfile=/app/libs/TripPricer.jar -DgroupId=tripPrice
 # Copier le fichier pom.xml
 COPY pom.xml .
 
-# Copier le reste de votre application dans l'image Docker
+# Copier l'app dans l'img Docker
 COPY src /app/src
 
-# Construire votre application avec Maven
+# Construire l'app avec Maven
 RUN mvn clean package -DskipTests
 
-# Spécifier la commande pour démarrer votre application
+# Spécifier la commande pour démarrer l'app
 CMD ["java", "-jar", "target/*.jar"]

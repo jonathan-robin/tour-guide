@@ -13,9 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import com.openclassrooms.tourguide.dto.UserNearByAttractionDto;
 import com.openclassrooms.tourguide.service.TourGuideService;
 import com.openclassrooms.tourguide.service.UserService;
-import com.openclassrooms.tourguide.user.UserReward;
-
-import tripPricer.Provider;
 
 @Controller
 @Slf4j
@@ -67,15 +64,6 @@ public class TourGuideController {
         return tourGuideService.getFiveNearestAttractions(visitedLocation, userService.getUser(userName));
     }
 
-    
-    @RequestMapping("/getRewards") 
-    public List<UserReward> getRewards(@RequestParam String userName) {
-    	return tourGuideService.getUserRewards(userService.getUser(userName));
-    }
-       
-    @RequestMapping("/getTripDeals")
-    public List<Provider> getTripDeals(@RequestParam String userName) {
-    	return tourGuideService.getTripDeals(userService.getUser(userName));
-    }
+
 
 }
