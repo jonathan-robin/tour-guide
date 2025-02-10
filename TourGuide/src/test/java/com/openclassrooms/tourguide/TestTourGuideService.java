@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import gpsUtil.GpsUtil;
 import gpsUtil.location.VisitedLocation;
-import lombok.extern.slf4j.Slf4j;
 import rewardCentral.RewardCentral;
 
 import com.openclassrooms.tourguide.dto.UserNearByAttractionDto;
@@ -20,6 +20,7 @@ import com.openclassrooms.tourguide.service.TourGuideService;
 import com.openclassrooms.tourguide.user.User;
 import tripPricer.Provider;
 
+@SpringBootTest(classes = TourguideApplication.class)
 public class TestTourGuideService {
 
 	@Test

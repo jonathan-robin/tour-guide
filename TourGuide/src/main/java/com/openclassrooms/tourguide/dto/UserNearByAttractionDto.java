@@ -1,7 +1,5 @@
 package com.openclassrooms.tourguide.dto;
 
-import com.openclassrooms.tourguide.user.User;
-
 public class UserNearByAttractionDto {
 
 

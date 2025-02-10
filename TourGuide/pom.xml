@@ -13,10 +13,6 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>tourguide</name>
 	<description>Demo project for Spring Boot</description>
-	<properties>
-		<java.version>17</java.version>
-		    <libs.dir>${project.basedir}/libs</libs.dir>
-	</properties>
 	<packaging>jar</packaging>
 	<dependencies>
 		<dependency>
@@ -47,29 +43,24 @@
 		    <groupId>org.apache.commons</groupId>
 		    <artifactId>commons-lang3</artifactId>
 		</dependency>
-		
+				
 		<dependency>
 		    <groupId>gpsUtil</groupId>
 		    <artifactId>gpsUtil</artifactId>
-		    <version>1.0</version>
-		    <scope>system</scope>
-		    <systemPath>${libs.dir}/gpsUtil.jar</systemPath>
+		    <version>1.0.0</version>
 		</dependency>
+
 		
 		<dependency>
 		    <groupId>tripPricer</groupId>
 		    <artifactId>tripPricer</artifactId>
 		    <version>1.0.0</version>
-		    <scope>system</scope>
-		    <systemPath>${libs.dir}/TripPricer.jar</systemPath>
 		</dependency>
 		
 		<dependency>
 		    <groupId>rewardCentral</groupId>
 		    <artifactId>rewardCentral</artifactId>
 		    <version>1.0.0</version>
-		    <scope>system</scope>
-		    <systemPath>${libs.dir}/RewardCentral.jar</systemPath>
 		</dependency>
 		
 		<dependency>
@@ -78,9 +69,6 @@
 		    <version>1.18.36</version>
 		    <scope>provided</scope>
 		</dependency>
-		
-
-
 	</dependencies>
 	
 	 <profiles>
