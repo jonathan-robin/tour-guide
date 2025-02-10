@@ -1,4 +1,5 @@
 version: '3.8'
+
 services:
   app:
     build: .
@@ -8,3 +9,4 @@ services:
       - SPRING_PROFILES_ACTIVE=prod
     volumes:
       - .:/app
+    command: ["java", "-jar", "target/*.jar"]
