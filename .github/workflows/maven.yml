@@ -20,6 +20,11 @@ jobs:
       - name: Verify the existence of JAR files
         run: |
           ls -l TourGuide/libs
+      - name: Check structure
+        run: |
+          echo "Current directory structure:"
+          ls -R /home/runner/work/tour-guide/tour-guide/TourGuide
+        working-directory: TourGuide
       - name: Install local Maven dependencies with debug output
         run: |
           echo "Current working directory: $(pwd)"
