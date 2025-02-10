@@ -25,9 +25,9 @@ jobs:
           echo "Current working directory: $(pwd)"
           echo "Listing files in TourGuide/libs:"
           ls -l $(pwd)/TourGuide/libs
-          mvn install:install-file -Dfile=$(pwd)/TourGuide/libs/gpsUtil.jar -DgroupId=gpsUtil -DartifactId=gpsUtil -Dversion=1.0.0 -Dpackaging=jar -X
-          mvn install:install-file -Dfile=$(pwd)/TourGuide/libs/RewardCentral.jar -DgroupId=rewardCentral -DartifactId=rewardCentral -Dversion=1.0.0 -Dpackaging=jar -X
-          mvn install:install-file -Dfile=$(pwd)/TourGuide/libs/TripPricer.jar -DgroupId=tripPricer -DartifactId=tripPricer -Dversion=1.0.0 -Dpackaging=jar -X
+          mvn install:install-file -Dfile=TourGuide/libs/gpsUtil.jar -DgroupId=gpsUtil -DartifactId=gpsUtil -Dversion=1.0.0 -Dpackaging=jar -X
+          mvn install:install-file -Dfile=TourGuide/libs/RewardCentral.jar -DgroupId=rewardCentral -DartifactId=rewardCentral -Dversion=1.0.0 -Dpackaging=jar -X
+          mvn install:install-file -Dfile=TourGuide/libs/TripPricer.jar -DgroupId=tripPricer -DartifactId=tripPricer -Dversion=1.0.0 -Dpackaging=jar -X
         working-directory: TourGuide
       - name: Build with Maven (with debug output)
         run: mvn clean install -X
