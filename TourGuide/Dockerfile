@@ -1,30 +1,18 @@
-# Étape 1: Construire l'application avec Maven
-FROM maven:3.8.6-openjdk-17-slim AS build
+# Utiliser l'image de base JDK 17
+FROM eclipse-temurin:17-jdk-alpine
 
-# Définir le répertoire de travail
+# Répertoire de travail dans le conteneur
 WORKDIR /app
 
-# Copier le fichier pom.xml et télécharger les dépendances
+# Copier le fichier pom.xml et les dépendances Maven
 COPY pom.xml .
 RUN mvn dependency:go-offline
 
-# Copier le code source de l'application
+# Copier le reste de votre application dans l'image Docker
 COPY src /app/src
 
-# Construire l'application avec Maven (génère le JAR)
+# Construire votre application avec Maven
 RUN mvn clean package -DskipTests
 
-# Étape 2: Créer l'image d'exécution
-FROM openjdk:17-alpine
-
-# Définir le répertoire de travail
-WORKDIR /app
-
-# Copier le JAR généré depuis l'étape de construction
-COPY --from=build /app/target/*.jar app.jar
-
-# Exposer le port sur lequel l'application va s'exécuter
-EXPOSE 8080
-
-# Lancer l'application Java (lancer le JAR avec OpenJDK)
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+# Spécifier la commande pour démarrer votre application
+CMD ["java", "-jar", "target/mon-application.jar"]
