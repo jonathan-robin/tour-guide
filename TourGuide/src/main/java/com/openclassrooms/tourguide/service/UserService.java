@@ -13,11 +13,13 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.openclassrooms.tourguide.application.TourGuideService;
 import com.openclassrooms.tourguide.helper.InternalTestHelper;
+import com.openclassrooms.tourguide.model.User;
 import com.openclassrooms.tourguide.tracker.Tracker;
-import com.openclassrooms.tourguide.user.User;
 
 import gpsUtil.GpsUtil;
 import gpsUtil.location.Location;
@@ -33,7 +35,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class UserService {
 	
-	boolean testMode = true;
+	Boolean testMode = true;
+
 	
 	// Database connection will be used for external users, but for testing purposes
 	// internal users are provided and stored in memory

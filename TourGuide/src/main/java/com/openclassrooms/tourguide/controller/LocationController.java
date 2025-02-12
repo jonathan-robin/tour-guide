@@ -1,4 +1,4 @@
-package com.openclassrooms.tourguide;
+package com.openclassrooms.tourguide.controller;
 
 import java.util.List;
 
@@ -7,31 +7,30 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.openclassrooms.tourguide.application.TourGuideService;
+import com.openclassrooms.tourguide.dto.UserNearByAttractionDto;
+import com.openclassrooms.tourguide.service.LocationService;
+import com.openclassrooms.tourguide.service.UserService;
+
 import gpsUtil.location.VisitedLocation;
 import lombok.extern.slf4j.Slf4j;
 
-import com.openclassrooms.tourguide.dto.UserNearByAttractionDto;
-import com.openclassrooms.tourguide.service.TourGuideService;
-import com.openclassrooms.tourguide.service.UserService;
-
 @Controller
 @Slf4j
-public class TourGuideController {
+public class LocationController {
 
 	@Autowired
-	TourGuideService tourGuideService;
+	private LocationService locationService;
 	
 	@Autowired
-	UserService userService;
+	private TourGuideService tourGuideService;
 	
-    @RequestMapping("/")
-    public String index() {
-        return "Greetings from TourGuide!";
-    }
+	@Autowired
+	private UserService userService;
     
     @RequestMapping("/getLocation") 
     public VisitedLocation getLocation(@RequestParam String userName) {
-    	return tourGuideService.getUserLocation(userService.getUser(userName));
+    	return locationService.getUserLocation(userService.getUser(userName));
     }
     
     /**
@@ -60,10 +59,9 @@ public class TourGuideController {
     @RequestMapping("/getNearbyAttractions")
     public List<UserNearByAttractionDto> getNearbyAttractions(@RequestParam String userName) {
         log.info("call API getNearByAttractions with user: {}", userName);
-        VisitedLocation visitedLocation = tourGuideService.getUserLocation(userService.getUser(userName));
+        VisitedLocation visitedLocation = locationService.getUserLocation(userService.getUser(userName));
         return tourGuideService.getFiveNearestAttractions(visitedLocation, userService.getUser(userName));
     }
 
-
-
+	
 }

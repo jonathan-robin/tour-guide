@@ -16,10 +16,10 @@ import tripPricer.Provider;
 public class TripController {
 
 	@Autowired
-	TripService tripService;
+	private TripService tripService;
 	
 	@Autowired
-	UserService userService;
+	private UserService userService;
 	
 	 @RequestMapping("/getTripDeals")
 	 public List<Provider> getTripDeals(@RequestParam String userName) {

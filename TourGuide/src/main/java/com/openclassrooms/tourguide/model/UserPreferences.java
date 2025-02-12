@@ -1,4 +1,4 @@
-package com.openclassrooms.tourguide.user;
+package com.openclassrooms.tourguide.model;
 
 /**
  * Represents the user preferences for a trip, including proximity to attractions,

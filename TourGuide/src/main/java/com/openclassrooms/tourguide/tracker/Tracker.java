@@ -8,10 +8,12 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import com.openclassrooms.tourguide.service.TourGuideService;
+import com.openclassrooms.tourguide.application.TourGuideService;
+import com.openclassrooms.tourguide.model.User;
+import com.openclassrooms.tourguide.service.LocationService;
 import com.openclassrooms.tourguide.service.UserService;
-import com.openclassrooms.tourguide.user.User;
 
 /**
  * The {@code Tracker} class is responsible for periodically tracking users' locations.
@@ -29,7 +31,10 @@ public class Tracker extends Thread {
     private static final long trackingPollingInterval = TimeUnit.MINUTES.toSeconds(5);
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final TourGuideService tourGuideService;
+//    private final LocationService locationService;
     private UserService userService;
+    @Autowired
+    private LocationService locationService;
     private boolean stop = false;
 
     /**
@@ -39,6 +44,7 @@ public class Tracker extends Thread {
      */
     public Tracker(TourGuideService tourGuideService) {
         this.tourGuideService = tourGuideService;
+//        this.locationService = locationService;
         executorService.submit(this);
     }
 
@@ -71,7 +77,7 @@ public class Tracker extends Thread {
 
             logger.debug("Begin Tracker. Tracking " + users.size() + " users.");
             stopWatch.start();
-            users.forEach(tourGuideService::trackUserLocation);
+            users.forEach(locationService::trackUserLocation);
             stopWatch.stop();
             logger.debug("Tracker Time Elapsed: " + TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()) + " seconds.");
             stopWatch.reset();

@@ -1,9 +1,14 @@
-package com.openclassrooms.tourguide.service;
+package com.openclassrooms.tourguide.application;
 
 import com.openclassrooms.tourguide.dto.UserNearByAttractionDto;
+import com.openclassrooms.tourguide.model.User;
+import com.openclassrooms.tourguide.service.LocationService;
+import com.openclassrooms.tourguide.service.RewardsService;
+import com.openclassrooms.tourguide.service.TripService;
 import com.openclassrooms.tourguide.tracker.Tracker;
-import com.openclassrooms.tourguide.user.User;
+
 import lombok.extern.slf4j.Slf4j;
+import rewardCentral.RewardCentral;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,31 +24,30 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
-import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.VisitedLocation;
 
 @Service
 @Slf4j
 public class TourGuideService {
-	
-	
-	private Logger logger = LoggerFactory.getLogger(TourGuideService.class);
-	
-	@Autowired
-	private GpsUtil gpsUtil;
-	
+
 	@Autowired
 	private RewardsService rewardsService;
 	
-//	ExecutorService executorService = Executors.newCachedThreadPool();
-	ExecutorService executorService = Executors.newFixedThreadPool(10);
-	public final Tracker tracker;	
+	@Autowired
+	private LocationService locationService;
 	
 	@Autowired
-	private UserService userService;
+	private TripService tripService;
+
+    @Autowired
+    private ThreadPoolTaskExecutor executorService;
+    
+	public final Tracker tracker;	
+
 
 	/**
 	 * Constructs a new TourGuideService instance.
@@ -55,51 +59,29 @@ public class TourGuideService {
 	 * @param gpsUtil The GPS utility used to get the location data.
 	 * @param rewardsService The rewards service used to manage user rewards.
 	 */
-	public TourGuideService(GpsUtil gpsUtil, RewardsService rewardsService, UserService userService) {
-	    this.gpsUtil = gpsUtil;
+	public TourGuideService(RewardsService rewardsService, LocationService locationService, TripService tripService) {
 	    this.rewardsService = rewardsService;
-	    this.userService = userService;
+	    this.locationService = locationService;
+	    this.tripService = tripService;
 	    
 	    Locale.setDefault(Locale.US);
 	    tracker = new Tracker(this);
 	    addShutDownHook();
 	}
 
+	public List<UserNearByAttractionDto> getUserNearByAttractions(VisitedLocation visitedLocation, User user) {
 
+	    CompletableFuture<List<Attraction>> nearestAttractionsFuture = CompletableFuture.supplyAsync(
+	        () -> locationService.getFiveNearestAttractions(visitedLocation), executorService);
 
-	/**
-	 * Retrieves the current location of the specified user.
-	 *
-	 * <p>If the user has visited locations, the last visited location is returned; otherwise, the method tracks the user's location and returns it.</p>
-	 *
-	 * @param user The user whose location is to be fetched.
-	 * @return The current visited location of the user.
-	 */
-	public VisitedLocation getUserLocation(User user) {
-	    VisitedLocation visitedLocation = (user.getVisitedLocations().size() > 0) ? user.getLastVisitedLocation()
-	            : trackUserLocation(user);
-	    return visitedLocation;
+	    List<Attraction> nearestAttractions = nearestAttractionsFuture.join();
+
+	    CompletableFuture<List<UserNearByAttractionDto>> dtosFuture = CompletableFuture.supplyAsync(
+	        () -> rewardsService.convertToUserNearByAttractionDtos(nearestAttractions, visitedLocation, user), executorService);
+
+	    return dtosFuture.join();
 	}
 
-
-
-	/**
-	 * Tracks the location of a user and calculates the associated rewards.
-	 * <p>
-	 * This method uses the GPS service to get the user's current location,
-	 * then adds this location to the user's visited locations list. After that,
-	 * it calculates the rewards for the user through the rewards service.
-	 * 
-	 * @param user The user whose location needs to be tracked.
-	 * @return The visited location of the user as a {@link VisitedLocation}.
-	 * @throws Exception If an issue occurs while retrieving the location or calculating the rewards.
-	 */
-	public VisitedLocation trackUserLocation(User user) {
-		VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
-		user.addToVisitedLocations(visitedLocation);
-		rewardsService.calculateRewards(user);
-		return visitedLocation;
-	}
 
 	/**
 	 * Tracks the locations of a list of users asynchronously. For each user, it fetches their visited location
@@ -113,13 +95,14 @@ public class TourGuideService {
 	 * @throws java.util.concurrent.ExecutionException If one of the asynchronous tasks throws an exception that is not handled.
 	 * @throws java.lang.InterruptedException If the current thread is interrupted while waiting for the completion of tasks.
 	 */
-	public List<VisitedLocation> trackUsersLocationsAsync(List<User> users) {
-		
+	public CompletableFuture<Void> trackUsersLocationsAsync(List<User> users) {
+		log.info("users: {}", users.size());
 		List<VisitedLocation> visitedLocations = Collections.synchronizedList(new ArrayList<>());
 		 
 		 List<CompletableFuture<Void>> futures = users.stream()
-	        .map(user -> CompletableFuture.supplyAsync(() -> trackUserLocation(user), executorService)
+	        .map(user -> CompletableFuture.supplyAsync(() -> locationService.trackUserLocation(user), executorService)
 	            .thenAccept(visitedLocation -> {
+	        		rewardsService.calculateRewards(user, locationService.getAttractions());
 	            	visitedLocations.add(visitedLocation);
 	            })
 	            .exceptionally(ex -> {
@@ -128,10 +111,51 @@ public class TourGuideService {
 	            }))
 	        .collect(Collectors.toList());
 
-	    CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+		    return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
 
-	    return visitedLocations;
 	}
+	
+	
+	/**
+	 * Asynchronously calculates rewards for a list of users using multiple threads.
+	 * For each user in the provided list, this method will calculate their rewards asynchronously 
+	 * in parallel. It will execute the reward calculation in separate threads managed by the provided
+	 * executor service.
+	 * 
+	 * The method waits for all the reward calculations to complete by using a {@link CompletableFuture}.
+	 * Once all tasks are finished, the returned {@link CompletableFuture<Void>} is completed. If any 
+	 * exception occurs during the calculation of rewards for any user, an error message will be logged 
+	 * and the calculation for that user will be skipped.
+	 * 
+	 * @param users The list of users for whom rewards need to be calculated.
+	 * @return A {@link CompletableFuture<Void>} that will be completed when all the reward calculations
+	 *         for all users are finished.
+	 * @throws IllegalArgumentException if the provided list of users is null or empty.
+	 * 
+	 * @see CompletableFuture
+	 * @see RewardsService#calculateRewards(User)
+	 */
+	public CompletableFuture<Void> calculateRewardsAsync(List<User> users) {
+		
+		log.info("users: {}", users.size());
+		List<Attraction> attractions = locationService.getAttractions();
+		
+		 List<CompletableFuture<Void>> futures = users.stream()
+	        .map((User user) -> CompletableFuture.runAsync(() -> {
+	        	try { 
+	        		rewardsService.calculateRewards(user, attractions);
+	        	} catch (Exception ex) {
+	        		log.error("Error calculating rewards for user: {}", user.getUserName());
+	        	}
+	        }, executorService))
+	        .collect(Collectors.toList());
+
+	    return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+
+	}
+	
+	
+	
 	/**
 	 * Retrieves the five nearest tourist attractions to the user's current location and calculates 
 	 * the reward points for each attraction.
@@ -160,20 +184,20 @@ public class TourGuideService {
 	 */
 	public List<UserNearByAttractionDto> getFiveNearestAttractions(VisitedLocation visitedLocation, User user) {
 
-	    List<Attraction> attractions = gpsUtil.getAttractions();
+	    List<Attraction> attractions = locationService.getAttractions();
 
 	    /* step 1 : Calculate distances to all attractions asynchronously */
 	    List<CompletableFuture<Pair<Attraction, Double>>> futureDistances = attractions.stream()
 	        .map(attraction -> CompletableFuture.supplyAsync(() -> {
 	            try {
 	                /* Calculate the distance from the user to the attraction */
-	                double distance = rewardsService.getDistance(attraction, visitedLocation.location);
+	                double distance = locationService.getDistance(attraction, visitedLocation.location);
 	                return Pair.of(attraction, distance);
 	            } catch (Exception ex) {
 	                log.error("Error processing attraction {}: {}", attraction.attractionName, ex.getMessage());
 	                return Pair.of(attraction, Double.MAX_VALUE); /* Return a max distance in case of error - filter out errors */
 	            }
-	        }, executorService))
+	        }))
 	        .collect(Collectors.toList());
 
 	    /* Collect and sort the attractions by distance, keeping only the 5 closest attractions */
@@ -207,7 +231,7 @@ public class TourGuideService {
 	                        pair.getRight(), 0
 	                );
 	            }
-	        }, executorService))
+	        }))
 	        .collect(Collectors.toList());
 
 	    /** Wait for all asynchronous tasks to complete and return the results */
@@ -221,6 +245,7 @@ public class TourGuideService {
 			}
 		});
 	}
+
 
 
 

@@ -19,30 +19,41 @@ import org.springframework.boot.test.context.SpringBootTest;
 import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.VisitedLocation;
+import lombok.extern.slf4j.Slf4j;
+import rewardCentral.RewardCentral;
+
+import com.openclassrooms.tourguide.application.TourGuideService;
 import com.openclassrooms.tourguide.helper.InternalTestHelper;
+import com.openclassrooms.tourguide.model.User;
+import com.openclassrooms.tourguide.service.LocationService;
 import com.openclassrooms.tourguide.service.RewardsService;
-import com.openclassrooms.tourguide.service.TourGuideService;
+import com.openclassrooms.tourguide.service.TripService;
 import com.openclassrooms.tourguide.service.UserService;
-import com.openclassrooms.tourguide.user.User;
 
 @SpringBootTest(classes = TourguideApplication.class)
+@Slf4j
 public class TestPerformance {
 
 	@Autowired
 	private UserService userService;
 	
 	@Autowired
-	private RewardsService rewardsService;
-
-	@Autowired
-	private GpsUtil gpsUtil;
+	private TourGuideService tourGuideService;
 	
 	@Autowired
-	private TourGuideService tourGuideService;
+	private RewardsService rewardsService;
+	
+	@Autowired
+	private LocationService locationService;
+	
+	@Autowired
+	private TripService tripService;
 	
    @BeforeEach
     public void setUp() {
-	   tourGuideService = new TourGuideService(gpsUtil, rewardsService, userService);
+	   tourGuideService = new TourGuideService(rewardsService, locationService, tripService);
+	   InternalTestHelper.setInternalUserNumber(100000);
+	   userService.initializeInternalUsers();;
     }
 	
 
@@ -66,15 +77,15 @@ public class TestPerformance {
 	
 	@Test
 	public void highVolumeTrackLocation() {
-		InternalTestHelper.setInternalUserNumber(100);
+
+		StopWatch stopWatch = new StopWatch();
+		stopWatch.start();
 
 		List<User> allUsers = new ArrayList<>();
 		allUsers = userService.getAllUsers();
 
-		StopWatch stopWatch = new StopWatch();
-		stopWatch.start();
-	    
-		tourGuideService.trackUsersLocationsAsync(allUsers);
+	    CompletableFuture<Void> allLocationsTracked = tourGuideService.trackUsersLocationsAsync(allUsers);
+	    allLocationsTracked.join(); 
 
 		stopWatch.stop();
 		tourGuideService.tracker.stopTracking();
@@ -110,18 +121,17 @@ public class TestPerformance {
 	 */
 	@Test
 	public void highVolumeGetRewards() {
-
-		InternalTestHelper.setInternalUserNumber(100);
+		
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
 
-		Attraction attraction = gpsUtil.getAttractions().get(0);
+		Attraction attraction = locationService.getAttractions().get(0);
 		List<User> allUsers = new ArrayList<>();
+		
 		allUsers = userService.getAllUsers();
 		allUsers.forEach(u -> u.addToVisitedLocations(new VisitedLocation(u.getUserId(), attraction, new Date())));
 
-	    CompletableFuture<Void> allRewardsCalculated = rewardsService.calculateRewardsAsync(allUsers);
-
+	    CompletableFuture<Void> allRewardsCalculated = tourGuideService.calculateRewardsAsync(allUsers);
 	    allRewardsCalculated.join(); 
 
 		for (User user : allUsers)

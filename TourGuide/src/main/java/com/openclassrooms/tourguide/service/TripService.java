@@ -4,16 +4,21 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.openclassrooms.tourguide.user.User;
+import com.openclassrooms.tourguide.model.User;
 
+import rewardCentral.RewardCentral;
 import tripPricer.Provider;
 import tripPricer.TripPricer;
 
 @Service
 public class TripService {
 	
-	private final TripPricer tripPricer = new TripPricer();
+	private TripPricer tripPricer = new TripPricer();
 	private static final String tripPricerApiKey = "test-server-api-key";
+	
+	public TripService(TripPricer tripPricer) {
+		this.tripPricer = tripPricer;
+	}
 	
 	/**
 	 * Retrieves a list of trip deals for the specified user.

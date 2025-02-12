@@ -7,10 +7,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.openclassrooms.tourguide.application.TourGuideService;
+import com.openclassrooms.tourguide.model.UserReward;
 import com.openclassrooms.tourguide.service.RewardsService;
-import com.openclassrooms.tourguide.service.TourGuideService;
 import com.openclassrooms.tourguide.service.UserService;
-import com.openclassrooms.tourguide.user.UserReward;
 
 @Controller
 public class RewardController {
