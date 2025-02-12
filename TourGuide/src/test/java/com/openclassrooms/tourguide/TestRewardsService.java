@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +18,6 @@ import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.VisitedLocation;
 import lombok.extern.slf4j.Slf4j;
-import rewardCentral.RewardCentral;
 
 import com.openclassrooms.tourguide.application.TourGuideService;
 import com.openclassrooms.tourguide.helper.InternalTestHelper;
@@ -54,17 +52,12 @@ public class TestRewardsService {
 
 	@Autowired
 	private LocationService locationService;
-	
-	@Autowired
-	private TripService tripService;
-	
+
 	@Autowired 
 	private TourGuideService tourGuideService;
 	
 	@BeforeEach
-	public void setUp() { 
-		 tourGuideService = new TourGuideService(rewardsService, locationService, tripService);
-	}
+	public void setUp() { }
 
     /**
      * Tests that a user receives rewards based on their visited location.

@@ -33,6 +33,14 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		
+		<!--jacoco -->
+        <dependency>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>0.8.10</version>
+            <type>maven-plugin</type>
+        </dependency>
 
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>

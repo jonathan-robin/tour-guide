@@ -11,16 +11,12 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.VisitedLocation;
 import lombok.extern.slf4j.Slf4j;
-import rewardCentral.RewardCentral;
 
 import com.openclassrooms.tourguide.application.TourGuideService;
 import com.openclassrooms.tourguide.helper.InternalTestHelper;
@@ -41,21 +37,14 @@ public class TestPerformance {
 	private TourGuideService tourGuideService;
 	
 	@Autowired
-	private RewardsService rewardsService;
-	
-	@Autowired
 	private LocationService locationService;
-	
-	@Autowired
-	private TripService tripService;
+
 	
    @BeforeEach
     public void setUp() {
-	   tourGuideService = new TourGuideService(rewardsService, locationService, tripService);
 	   InternalTestHelper.setInternalUserNumber(100);
 	   userService.initializeInternalUsers();;
     }
-	
 
 	/**
 	 * 	

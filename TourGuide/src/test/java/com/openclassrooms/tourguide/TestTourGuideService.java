@@ -15,7 +15,6 @@ import org.springframework.test.annotation.Rollback;
 import gpsUtil.GpsUtil;
 import gpsUtil.location.VisitedLocation;
 import lombok.extern.slf4j.Slf4j;
-import rewardCentral.RewardCentral;
 
 import com.openclassrooms.tourguide.application.TourGuideService;
 import com.openclassrooms.tourguide.dto.UserNearByAttractionDto;
