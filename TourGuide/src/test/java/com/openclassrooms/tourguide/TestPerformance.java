@@ -52,7 +52,7 @@ public class TestPerformance {
    @BeforeEach
     public void setUp() {
 	   tourGuideService = new TourGuideService(rewardsService, locationService, tripService);
-	   InternalTestHelper.setInternalUserNumber(100000);
+	   InternalTestHelper.setInternalUserNumber(100);
 	   userService.initializeInternalUsers();;
     }
 	
