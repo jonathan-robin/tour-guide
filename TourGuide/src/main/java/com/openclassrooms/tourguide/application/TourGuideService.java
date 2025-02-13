@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 import gpsUtil.location.Attraction;
 import gpsUtil.location.VisitedLocation;
+import jakarta.annotation.PostConstruct;
 
 @Service
 @Slf4j
@@ -37,8 +38,9 @@ public class TourGuideService {
 	@Autowired
 	private RewardsService rewardsService;
 	
+
 	@Autowired
-	private LocationService locationService;
+    private final LocationService locationService; 
 	
 	@Autowired
 	private TripService tripService;
@@ -59,15 +61,30 @@ public class TourGuideService {
 	 * @param gpsUtil The GPS utility used to get the location data.
 	 * @param rewardsService The rewards service used to manage user rewards.
 	 */
-	public TourGuideService(RewardsService rewardsService, LocationService locationService, TripService tripService) {
+	public TourGuideService(RewardsService rewardsService, LocationService locationService, TripService tripService, ThreadPoolTaskExecutor executorService) {
 	    this.rewardsService = rewardsService;
 	    this.locationService = locationService;
 	    this.tripService = tripService;
+	    this.executorService = executorService;
+	    
+        log.info("TourGuideService initialized with LocationService: {}", locationService);
+
+	    
+	    System.out.println(locationService);
 	    
 	    Locale.setDefault(Locale.US);
 	    tracker = new Tracker(this);
 	    addShutDownHook();
 	}
+	
+    @PostConstruct
+    public void checkLocationService() {
+        if (locationService == null) {
+            log.error("LocationService is not injected properly!");
+        } else {
+            log.info("LocationService successfully injected.");
+        }
+    }
 
 	public List<UserNearByAttractionDto> getUserNearByAttractions(VisitedLocation visitedLocation, User user) {
 
@@ -96,15 +113,23 @@ public class TourGuideService {
 	 * @throws java.lang.InterruptedException If the current thread is interrupted while waiting for the completion of tasks.
 	 */
 	public CompletableFuture<Void> trackUsersLocationsAsync(List<User> users) {
-		log.info("users: {}", users.size());
 		List<VisitedLocation> visitedLocations = Collections.synchronizedList(new ArrayList<>());
 		 
 		 List<CompletableFuture<Void>> futures = users.stream()
-	        .map(user -> CompletableFuture.supplyAsync(() -> locationService.trackUserLocation(user), executorService)
-	            .thenAccept(visitedLocation -> {
-	        		rewardsService.calculateRewards(user, locationService.getAttractions());
-	            	visitedLocations.add(visitedLocation);
-	            })
+				 .map(user -> CompletableFuture.supplyAsync(() -> {
+			            // Appel de locationService dans un thread spécifique
+			            VisitedLocation visitedLocation = locationService.trackUserLocation(user);
+			            rewardsService.calculateRewards(user, locationService.getAttractions());
+			            visitedLocations.add(visitedLocation);
+			            return visitedLocation;
+			        }, executorService)
+//			        .thenAccept(visitedLocation -> {
+//			            // Assure-toi que l'instance de rewardsService soit bien partagée et non null
+//
+		        .thenAccept(visitedLocation -> {
+		            // Cela pourrait être utilisé pour des actions supplémentaires si nécessaire après chaque traitement
+		            // Par exemple, tu pourrais enregistrer les informations dans une base de données ou mettre à jour une interface utilisateur.
+		        })
 	            .exceptionally(ex -> {
                 	log.warn("Error tracking location for user {}: {}", user.getUserName(), ex.getMessage());
                 	return null;
@@ -137,7 +162,6 @@ public class TourGuideService {
 	 */
 	public CompletableFuture<Void> calculateRewardsAsync(List<User> users) {
 		
-		log.info("users: {}", users.size());
 		List<Attraction> attractions = locationService.getAttractions();
 		
 		 List<CompletableFuture<Void>> futures = users.stream()

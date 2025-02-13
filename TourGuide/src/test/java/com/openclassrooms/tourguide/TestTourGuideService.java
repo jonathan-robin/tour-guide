@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.test.annotation.Rollback;
 
 import gpsUtil.GpsUtil;
@@ -57,9 +58,12 @@ public class TestTourGuideService {
 	@Autowired
 	private LocationService locationService;
 	
+    @Autowired
+    private ThreadPoolTaskExecutor executorService;
+	
    @BeforeEach
     public void setUp() {
-	   tourGuideService = new TourGuideService(rewardsService, locationService, tripService);
+	   tourGuideService = new TourGuideService(rewardsService, locationService, tripService, executorService);
 	   InternalTestHelper.setInternalUserNumber(0);
 	   userService.removeAllUsers();
     }
@@ -143,7 +147,6 @@ public class TestTourGuideService {
      */
     @Test
     public void trackUser() {
-        TourGuideService tourGuideService = new TourGuideService(rewardsService, locationService, tripService);
 
         User user = new User(UUID.randomUUID(), "jon", "000", "jon5@tourGuide.com");
         VisitedLocation visitedLocation = locationService.trackUserLocation(user);
@@ -163,7 +166,6 @@ public class TestTourGuideService {
      */
     @Test
     public void getNearbyAttractions() {
-        TourGuideService tourGuideService = new TourGuideService(rewardsService, locationService, tripService);
 
         User user = new User(UUID.randomUUID(), "jon", "000", "jon6@tourGuide.com");
         VisitedLocation visitedLocation = locationService.trackUserLocation(user);

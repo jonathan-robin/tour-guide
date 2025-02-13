@@ -8,15 +8,17 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.time.StopWatch;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import gpsUtil.location.Attraction;
 import gpsUtil.location.VisitedLocation;
 import lombok.extern.slf4j.Slf4j;
+import rewardCentral.RewardCentral;
+import tripPricer.TripPricer;
 
 import com.openclassrooms.tourguide.application.TourGuideService;
 import com.openclassrooms.tourguide.helper.InternalTestHelper;
@@ -26,7 +28,7 @@ import com.openclassrooms.tourguide.service.RewardsService;
 import com.openclassrooms.tourguide.service.TripService;
 import com.openclassrooms.tourguide.service.UserService;
 
-@SpringBootTest(classes = TourguideApplication.class)
+@SpringBootTest
 @Slf4j
 public class TestPerformance {
 
@@ -34,16 +36,32 @@ public class TestPerformance {
 	private UserService userService;
 	
 	@Autowired
+	private LocationService locationService;
+	
+	@Autowired
 	private TourGuideService tourGuideService;
 	
 	@Autowired
-	private LocationService locationService;
+	private RewardCentral rewardCentral;
+	
+	@Autowired
+	private RewardsService rewardsService;
 
+    @Autowired
+    private ThreadPoolTaskExecutor executorService;
+    
+    @Autowired
+    private TripService tripService;
 	
    @BeforeEach
     public void setUp() {
+//		locationService = new LocationService(new GpsUtil());
+//		rewardCentral = new RewardCentral();
+//		rewardsService = new RewardsService(rewardCentral);
+//		tripService = new TripService(new TripPricer());
+//		tourGuideService = new TourGuideService(rewardsService, locationService, tripService, executorService);
 	   InternalTestHelper.setInternalUserNumber(100);
-	   userService.initializeInternalUsers();;
+	   userService.initializeInternalUsers();
     }
 
 	/**
@@ -72,7 +90,15 @@ public class TestPerformance {
 
 		List<User> allUsers = new ArrayList<>();
 		allUsers = userService.getAllUsers();
+//		 TourGuideService _tourGuideService = new TourGuideService(new RewardsService(new RewardCentral()), locationService, new TripService(new TripPricer()), executorService);
+		 System.out.println("🔍 Vérification des services...");
+		 System.out.println("userService: " + (userService != null));
+		 System.out.println("locationService: " + (locationService != null));
+		 System.out.println("tourGuideService: " + (tourGuideService != null));
+		 System.out.println("rewardsService: " + (new RewardsService(new RewardCentral()) != null));
+		 
 
+		 log.info("exce: {}",  executorService.getCorePoolSize());
 	    CompletableFuture<Void> allLocationsTracked = tourGuideService.trackUsersLocationsAsync(allUsers);
 	    allLocationsTracked.join(); 
 
@@ -116,6 +142,7 @@ public class TestPerformance {
 
 		Attraction attraction = locationService.getAttractions().get(0);
 		List<User> allUsers = new ArrayList<>();
+		log.info("exce: {}",  executorService.getCorePoolSize());
 		
 		allUsers = userService.getAllUsers();
 		allUsers.forEach(u -> u.addToVisitedLocations(new VisitedLocation(u.getUserId(), attraction, new Date())));

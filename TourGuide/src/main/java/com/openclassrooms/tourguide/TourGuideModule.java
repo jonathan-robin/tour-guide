@@ -3,7 +3,7 @@ package com.openclassrooms.tourguide;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.openclassrooms.tourguide.service.RewardsService;
+import com.openclassrooms.tourguide.service.LocationService;
 
 import gpsUtil.GpsUtil;
 import rewardCentral.RewardCentral;
@@ -12,7 +12,7 @@ import tripPricer.TripPricer;
 @Configuration
 public class TourGuideModule {
 	
-//	RewardsService rewardsService;
+
 
     @Bean
     public GpsUtil gpsUtil() {
@@ -28,19 +28,6 @@ public class TourGuideModule {
     public TripPricer tripPricer() {
         return new TripPricer();
     }
+    
 
-//    @Bean
-//    public RewardsService rewardsService() {
-//        return new RewardsService(rewardCentral());
-//    }
-//    
-//    @Bean
-//    public RewardsService rewardsService() {
-//        return new RewardsService(rewardCentral());
-//    }
-
-//    @Bean
-//    public TourGuideService tourGuideService() {
-//        return new TourGuideService(gpsUtil(), rewardsService);
-//    }
 }

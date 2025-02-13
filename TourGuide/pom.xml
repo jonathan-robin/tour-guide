@@ -14,6 +14,8 @@
 	<name>tourguide</name>
 	<description>Demo project for Spring Boot</description>
 	<packaging>jar</packaging>
+	
+	
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -33,14 +35,7 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		
-		<!--jacoco -->
-        <dependency>
-            <groupId>org.jacoco</groupId>
-            <artifactId>jacoco-maven-plugin</artifactId>
-            <version>0.8.10</version>
-            <type>maven-plugin</type>
-        </dependency>
+
 
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
@@ -92,6 +87,11 @@
                             <dockerHost>unix:///var/run/docker.sock</dockerHost>
                         </configuration>
                     </plugin>
+                    <plugin>
+						<groupId>org.springframework.boot</groupId>
+						<artifactId>spring-boot-maven-plugin</artifactId>
+					</plugin>
+					
                 </plugins>
             </build>
         </profile>
@@ -100,9 +100,28 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
+			    <groupId>org.jacoco</groupId>
+			    <artifactId>jacoco-maven-plugin</artifactId>
+			    <version>0.8.10</version> <!-- Vérifiez la dernière version -->
+			    <executions>
+			        <!-- Active JaCoCo pour l'instrumentation des tests -->
+			        <execution>
+			            <id>prepare-agent</id>
+			            <goals>
+			                <goal>prepare-agent</goal>
+			            </goals>
+			        </execution>
+			        <!-- Génère le rapport après l'exécution des tests -->
+			        <execution>
+			            <id>report</id>
+			            <phase>verify</phase>
+			            <goals>
+			                <goal>report</goal>
+			            </goals>
+			        </execution>
+			    </executions>
 			</plugin>
+
 		</plugins>
 	</build>
 

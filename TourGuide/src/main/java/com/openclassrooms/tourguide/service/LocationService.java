@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import com.openclassrooms.tourguide.dto.UserNearByAttractionDto;
@@ -24,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 
 
 @Slf4j
+@Scope("singleton")
 @Service
 public class LocationService {
 	

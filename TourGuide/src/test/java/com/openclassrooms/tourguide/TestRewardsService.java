@@ -20,6 +20,7 @@ import gpsUtil.location.VisitedLocation;
 import lombok.extern.slf4j.Slf4j;
 
 import com.openclassrooms.tourguide.application.TourGuideService;
+import com.openclassrooms.tourguide.dto.UserNearByAttractionDto;
 import com.openclassrooms.tourguide.helper.InternalTestHelper;
 import com.openclassrooms.tourguide.model.User;
 import com.openclassrooms.tourguide.model.UserReward;
@@ -80,9 +81,41 @@ public class TestRewardsService {
         rewardsService.calculateRewards(user, locationService.getAttractions());
         List<UserReward> userRewards = user.getUserRewards();
         tourGuideService.tracker.stopTracking();
+        userRewards.get(0).setRewardPoints(0);
+        userRewards.get(0).getRewardPoints();
 
         assertTrue(userRewards.size() >= 1, "User should have received at least one reward.");
     }
+    
+    @Test
+    public void testConvertToUserNearByAttractionDtos() {
+        // Création d'un utilisateur de test
+        User user = new User(UUID.randomUUID(), "testUser", "000", "test@tourGuide.com");
+
+        // Création d'un emplacement visité fictif
+        VisitedLocation visitedLocation = new VisitedLocation(user.getUserId(), 
+            new gpsUtil.location.Location(34.0522, -118.2437), new Date());
+
+        // Création d'attractions fictives
+        List<Attraction> attractions = Arrays.asList(
+        		locationService.getAttractions().get(0), locationService.getAttractions().get(1)
+        );
+
+        // Appel de la méthode testée
+        List<UserNearByAttractionDto> result = rewardsService.convertToUserNearByAttractionDtos(attractions, visitedLocation, user);
+
+        // Vérifications
+        assertEquals(attractions.size(), result.size(), "Le nombre de DTOs retournés doit être égal au nombre d'attractions.");
+
+        for (int i = 0; i < attractions.size(); i++) {
+            Attraction attraction = attractions.get(i);
+            UserNearByAttractionDto dto = result.get(i);
+
+            assertEquals(attraction.attractionName, dto.getAttractionName(), "Le nom de l'attraction doit correspondre.");
+            assertTrue(dto.getDistanceInMiles() >= 0, "La distance ne doit pas être négative.");
+        }
+    }
+
 
     /**
      * Tests if an attraction is within the proximity of another attraction.
