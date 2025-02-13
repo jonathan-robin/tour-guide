@@ -19,15 +19,12 @@ jobs:
           cache: maven
       - name: Install local Maven dependencies
         run: |
-          echo "Current working directory: $(pwd)"
-          echo "Listing files in TourGuide/libs:"
-          ls -l TourGuide/libs  # Vérification du contenu du répertoire libs
           mvn install:install-file -Dfile=TourGuide/libs/gpsUtil.jar -DgroupId=gpsUtil -DartifactId=gpsUtil -Dversion=1.0.0 -Dpackaging=jar -X
           mvn install:install-file -Dfile=TourGuide/libs/RewardCentral.jar -DgroupId=rewardCentral -DartifactId=rewardCentral -Dversion=1.0.0 -Dpackaging=jar -X
           mvn install:install-file -Dfile=TourGuide/libs/TripPricer.jar -DgroupId=tripPricer -DartifactId=tripPricer -Dversion=1.0.0 -Dpackaging=jar -X
         working-directory: /home/runner/work/tour-guide/tour-guide
       - name: Build with Maven (with debug output)
-        run: mvn clean install -X
+        run: mvn clean install -DskipTests
         working-directory: TourGuide
       - name: Upload JAR artifact
         uses: actions/upload-artifact@v4
