@@ -115,28 +115,33 @@ public class TourGuideService {
 	public CompletableFuture<Void> trackUsersLocationsAsync(List<User> users) {
 		List<VisitedLocation> visitedLocations = Collections.synchronizedList(new ArrayList<>());
 		 
-		 List<CompletableFuture<Void>> futures = users.stream()
-				 .map(user -> CompletableFuture.supplyAsync(() -> {
-			            // Appel de locationService dans un thread spécifique
-			            VisitedLocation visitedLocation = locationService.trackUserLocation(user);
-			            rewardsService.calculateRewards(user, locationService.getAttractions());
-			            visitedLocations.add(visitedLocation);
-			            return visitedLocation;
-			        }, executorService)
-//			        .thenAccept(visitedLocation -> {
-//			            // Assure-toi que l'instance de rewardsService soit bien partagée et non null
-//
-		        .thenAccept(visitedLocation -> {
-		            // Cela pourrait être utilisé pour des actions supplémentaires si nécessaire après chaque traitement
-		            // Par exemple, tu pourrais enregistrer les informations dans une base de données ou mettre à jour une interface utilisateur.
-		        })
-	            .exceptionally(ex -> {
-                	log.warn("Error tracking location for user {}: {}", user.getUserName(), ex.getMessage());
-                	return null;
-	            }))
-	        .collect(Collectors.toList());
+		List<CompletableFuture<Void>> futuresLocation = users.stream()
+			 .map(user -> CompletableFuture.supplyAsync(() -> {
 
-		    return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+		            VisitedLocation visitedLocation = locationService.trackUserLocation(user);
+//		            rewardsService.calculateRewards(user, locationService.getAttractions());
+		            visitedLocations.add(visitedLocation);
+		            return visitedLocation;
+		        }, executorService)
+
+	        .thenAccept(visitedLocation -> {
+
+	        })
+            .exceptionally(ex -> {
+            	log.warn("Error tracking location for user {}: {}", user.getUserName(), ex.getMessage());
+            	return null;
+            }))
+        .collect(Collectors.toList());
+
+//		futuresLocation.join();
+		
+	    CompletableFuture.allOf(futuresLocation.toArray(new CompletableFuture[0]));
+	    CompletableFuture<Void> futuresRewards = calculateRewardsAsync(users);
+	    CompletableFuture.allOf(futuresRewards);
+	    CompletableFuture<Void> futures = CompletableFuture.allOf(futuresRewards, futuresRewards);
+	    return futures;
+		    
+		 
 
 	}
 	

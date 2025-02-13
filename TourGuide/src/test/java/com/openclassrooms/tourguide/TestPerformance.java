@@ -41,10 +41,6 @@ public class TestPerformance {
 	@Autowired
 	private TourGuideService tourGuideService;
 	
-    @Autowired
-    private ThreadPoolTaskExecutor executorService;
-
-	
    @BeforeEach
     public void setUp() {
 	   InternalTestHelper.setInternalUserNumber(100);
