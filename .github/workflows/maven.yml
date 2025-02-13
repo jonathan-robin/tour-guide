@@ -44,6 +44,9 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
+      - name: Build with Maven (with debug output)
+        run: mvn clean install -DskipTests
+        working-directory: TourGuide
       - name: Run the Maven verify phase
         run: mvn verify
         working-directory: TourGuide
