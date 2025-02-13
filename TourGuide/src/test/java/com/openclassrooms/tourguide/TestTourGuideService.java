@@ -18,6 +18,7 @@ import gpsUtil.location.VisitedLocation;
 import lombok.extern.slf4j.Slf4j;
 
 import com.openclassrooms.tourguide.application.TourGuideService;
+import com.openclassrooms.tourguide.config.AsyncConfig;
 import com.openclassrooms.tourguide.dto.UserNearByAttractionDto;
 import com.openclassrooms.tourguide.helper.InternalTestHelper;
 import com.openclassrooms.tourguide.model.User;
@@ -57,13 +58,14 @@ public class TestTourGuideService {
 	
 	@Autowired
 	private LocationService locationService;
-	
+    
     @Autowired
-    private ThreadPoolTaskExecutor executorService;
+    private AsyncConfig config;
 	
    @BeforeEach
     public void setUp() {
-	   tourGuideService = new TourGuideService(rewardsService, locationService, tripService, executorService);
+	   config = new AsyncConfig();
+	   tourGuideService = new TourGuideService(rewardsService, locationService, tripService, config);
 	   InternalTestHelper.setInternalUserNumber(0);
 	   userService.removeAllUsers();
     }

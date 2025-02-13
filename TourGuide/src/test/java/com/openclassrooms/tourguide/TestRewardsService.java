@@ -56,9 +56,6 @@ public class TestRewardsService {
 
 	@Autowired 
 	private TourGuideService tourGuideService;
-	
-	@BeforeEach
-	public void setUp() { }
 
     /**
      * Tests that a user receives rewards based on their visited location.

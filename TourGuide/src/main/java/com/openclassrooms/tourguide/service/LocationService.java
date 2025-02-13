@@ -12,8 +12,10 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
+import com.openclassrooms.tourguide.config.AsyncConfig;
 import com.openclassrooms.tourguide.dto.UserNearByAttractionDto;
 import com.openclassrooms.tourguide.model.User;
 
@@ -40,10 +42,18 @@ public class LocationService {
    
 	private int attractionProximityRange = 200;
 	
-	private final ExecutorService executorService = Executors.newFixedThreadPool(10);
+    @Autowired
+    private ThreadPoolTaskExecutor executorService;
+    
+    @Autowired
+    private AsyncConfig config;
+	
+//	private final ExecutorService executorService = Executors.newFixedThreadPool(10);
 	
 	public LocationService(GpsUtil gpsUtil) { 
 		this.gpsUtil = gpsUtil;
+		this.config = new AsyncConfig();
+		this.executorService = config.taskExecutor();
 	}
 
 	

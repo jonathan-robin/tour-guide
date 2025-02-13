@@ -21,6 +21,7 @@ import rewardCentral.RewardCentral;
 import tripPricer.TripPricer;
 
 import com.openclassrooms.tourguide.application.TourGuideService;
+import com.openclassrooms.tourguide.config.AsyncConfig;
 import com.openclassrooms.tourguide.helper.InternalTestHelper;
 import com.openclassrooms.tourguide.model.User;
 import com.openclassrooms.tourguide.service.LocationService;
@@ -41,8 +42,12 @@ public class TestPerformance {
 	@Autowired
 	private TourGuideService tourGuideService;
 	
+//	@Autowired
+//	private AsyncConfig asyncConfig;
+	
    @BeforeEach
     public void setUp() {
+//	   asyncConfig.taskExecutor();
 	   InternalTestHelper.setInternalUserNumber(100);
 	   userService.initializeInternalUsers();
     }
@@ -73,12 +78,17 @@ public class TestPerformance {
 
 		List<User> allUsers = new ArrayList<>();
 		allUsers = userService.getAllUsers();
+		
+
 
 	    CompletableFuture<Void> allLocationsTracked = tourGuideService.trackUsersLocationsAsync(allUsers);
 	    allLocationsTracked.join(); 
 
 		stopWatch.stop();
 		tourGuideService.tracker.stopTracking();
+		
+
+
 
 		System.out.println("highVolumeTrackLocation: Time Elapsed: "
 				+ TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()) + " seconds.");
@@ -117,7 +127,7 @@ public class TestPerformance {
 
 		Attraction attraction = locationService.getAttractions().get(0);
 		List<User> allUsers = new ArrayList<>();
-		
+
 		allUsers = userService.getAllUsers();
 		allUsers.forEach(u -> u.addToVisitedLocations(new VisitedLocation(u.getUserId(), attraction, new Date())));
 
@@ -126,7 +136,7 @@ public class TestPerformance {
 
 		for (User user : allUsers)
 			assertTrue(user.getUserRewards().size() > 0);
-		
+
 		stopWatch.stop();
 		tourGuideService.tracker.stopTracking();
 

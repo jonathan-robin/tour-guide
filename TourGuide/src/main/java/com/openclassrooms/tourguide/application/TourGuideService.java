@@ -1,5 +1,6 @@
 package com.openclassrooms.tourguide.application;
 
+import com.openclassrooms.tourguide.config.AsyncConfig;
 import com.openclassrooms.tourguide.dto.UserNearByAttractionDto;
 import com.openclassrooms.tourguide.model.User;
 import com.openclassrooms.tourguide.service.LocationService;
@@ -16,6 +17,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -61,11 +63,11 @@ public class TourGuideService {
 	 * @param gpsUtil The GPS utility used to get the location data.
 	 * @param rewardsService The rewards service used to manage user rewards.
 	 */
-	public TourGuideService(RewardsService rewardsService, LocationService locationService, TripService tripService, ThreadPoolTaskExecutor executorService) {
+	public TourGuideService(RewardsService rewardsService, LocationService locationService, TripService tripService, AsyncConfig config) {
 	    this.rewardsService = rewardsService;
 	    this.locationService = locationService;
 	    this.tripService = tripService;
-	    this.executorService = executorService;
+	    this.executorService = config.taskExecutor();
 	    
         log.info("TourGuideService initialized with LocationService: {}", locationService);
 
@@ -113,10 +115,11 @@ public class TourGuideService {
 	 * @throws java.lang.InterruptedException If the current thread is interrupted while waiting for the completion of tasks.
 	 */
 	public CompletableFuture<Void> trackUsersLocationsAsync(List<User> users) {
-		List<VisitedLocation> visitedLocations = Collections.synchronizedList(new ArrayList<>());
+		List<VisitedLocation> visitedLocations =  Collections.synchronizedList(new ArrayList<>());
 		 
-		List<CompletableFuture<Void>> futuresLocation = users.stream()
+		List<CompletableFuture<Void>> futuresLocation = users.parallelStream()
 			 .map(user -> CompletableFuture.supplyAsync(() -> {
+				  	log.info("Tracking user: " + user.getUserId() + " - Thread: " + Thread.currentThread().getName());
 
 		            VisitedLocation visitedLocation = locationService.trackUserLocation(user);
 //		            rewardsService.calculateRewards(user, locationService.getAttractions());
@@ -139,10 +142,8 @@ public class TourGuideService {
 	    CompletableFuture<Void> futuresRewards = calculateRewardsAsync(users);
 	    CompletableFuture.allOf(futuresRewards);
 	    CompletableFuture<Void> futures = CompletableFuture.allOf(futuresRewards, futuresRewards);
+	    
 	    return futures;
-		    
-		 
-
 	}
 	
 	
@@ -172,6 +173,7 @@ public class TourGuideService {
 		 List<CompletableFuture<Void>> futures = users.stream()
 	        .map((User user) -> CompletableFuture.runAsync(() -> {
 	        	try { 
+				  	log.info("Calculate reward: " + user.getUserId() + " - Thread: " + Thread.currentThread().getName());
 	        		rewardsService.calculateRewards(user, attractions);
 	        	} catch (Exception ex) {
 	        		log.error("Error calculating rewards for user: {}", user.getUserName());
