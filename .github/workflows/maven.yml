@@ -26,6 +26,9 @@ jobs:
       - name: Build with Maven (with debug output)
         run: mvn clean install -DskipTests
         working-directory: TourGuide
+      - name: Run the Maven verify phase
+        run: mvn verify
+        working-directory: TourGuide
       - name: Upload JAR artifact
         uses: actions/upload-artifact@v4
         with:
