@@ -121,7 +121,14 @@
 			        </execution>
 			    </executions>
 			</plugin>
-
+			<plugin>
+	            <groupId>org.springframework.boot</groupId>
+	            <artifactId>spring-boot-maven-plugin</artifactId>
+	            <configuration>
+	                <layered>false</layered>
+	                <mainClass>com.openclassrooms.tourguide.TourGuideApplication</mainClass>
+	            </configuration>
+	        </plugin>
 		</plugins>
 	</build>
 
