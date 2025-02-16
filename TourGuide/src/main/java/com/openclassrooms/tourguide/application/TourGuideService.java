@@ -143,11 +143,10 @@ public class TourGuideService {
 	public CompletableFuture<Void> calculateRewardsAsync(List<User> users) {
 		
 		List<Attraction> attractions = locationService.getAttractions();
-		
+		log.info("Starting calculate Rewards for {} user(s).", users.size());
 		 List<CompletableFuture<Void>> futures = users.stream()
 	        .map((User user) -> CompletableFuture.runAsync(() -> {
 	        	try { 
-				  	log.info("Calculate reward: " + user.getUserId() + " - Thread: " + Thread.currentThread().getName());
 	        		rewardsService.calculateRewards(user, attractions);
 	        	} catch (Exception ex) {
 	        		log.error("Error calculating rewards for user: {}", user.getUserName());

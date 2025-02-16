@@ -3,9 +3,12 @@ package com.openclassrooms.tourguide.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.openclassrooms.tourguide.application.TourGuideService;
 import com.openclassrooms.tourguide.dto.UserNearByAttractionDto;
@@ -15,8 +18,9 @@ import com.openclassrooms.tourguide.service.UserService;
 import gpsUtil.location.VisitedLocation;
 import lombok.extern.slf4j.Slf4j;
 
-@Controller
+@RestController
 @Slf4j
+@RequestMapping("/locations") 
 public class LocationController {
 
 	@Autowired
@@ -28,9 +32,10 @@ public class LocationController {
 	@Autowired
 	private UserService userService;
     
-    @RequestMapping("/getLocation") 
-    public VisitedLocation getLocation(@RequestParam String userName) {
-    	return locationService.getUserLocation(userService.getUser(userName));
+    @GetMapping("") 
+    public ResponseEntity<VisitedLocation> getLocation(@RequestParam String userName) {
+    	log.info("call API /locations with user: {}", userName);
+    	return ResponseEntity.ok(locationService.getUserLocation(userService.getUser(userName)));
     }
     
     /**
@@ -56,11 +61,11 @@ public class LocationController {
      * @see TourGuideService
      * @see UserService
      */
-    @RequestMapping("/getNearbyAttractions")
-    public List<UserNearByAttractionDto> getNearbyAttractions(@RequestParam String userName) {
-        log.info("call API getNearByAttractions with user: {}", userName);
+    @GetMapping("/getNearbyAttractions")
+    public ResponseEntity<List<UserNearByAttractionDto>> getNearbyAttractions(@RequestParam String userName) {
+        log.info("call API locations/getNearByAttractions with user: {}", userName);
         VisitedLocation visitedLocation = locationService.getUserLocation(userService.getUser(userName));
-        return tourGuideService.getFiveNearestAttractions(visitedLocation, userService.getUser(userName));
+        return ResponseEntity.ok(tourGuideService.getFiveNearestAttractions(visitedLocation, userService.getUser(userName)));
     }
 
 	

@@ -58,7 +58,6 @@ public class RewardsService {
 	 */
 	public void calculateRewards(User user, List<Attraction> attractions) {
 		
-		log.info("Calculate Rewards:  : " + user.getUserId() + " - Thread: " + Thread.currentThread().getName());
 	   	List<VisitedLocation> userLocations = new CopyOnWriteArrayList<>(user.getVisitedLocations());
 
 	    for (VisitedLocation visitedLocation : userLocations) {
