@@ -6,6 +6,7 @@ import com.openclassrooms.tourguide.model.User;
 import com.openclassrooms.tourguide.service.LocationService;
 import com.openclassrooms.tourguide.service.RewardsService;
 import com.openclassrooms.tourguide.service.TripService;
+import com.openclassrooms.tourguide.service.UtilsService;
 import com.openclassrooms.tourguide.tracker.Tracker;
 
 import lombok.extern.slf4j.Slf4j;
@@ -39,13 +40,15 @@ public class TourGuideService {
 
 	@Autowired
 	private RewardsService rewardsService;
-	
 
 	@Autowired
     private final LocationService locationService; 
 	
 	@Autowired
 	private TripService tripService;
+	
+	@Autowired
+	private UtilsService utilsService;
 
     @Autowired
     private ThreadPoolTaskExecutor executorService;
@@ -70,7 +73,6 @@ public class TourGuideService {
 	    this.executorService = config.taskExecutor();
 	    
         log.info("TourGuideService initialized with LocationService: {}", locationService);
-
 	    
 	    System.out.println(locationService);
 	    
@@ -78,15 +80,6 @@ public class TourGuideService {
 	    tracker = new Tracker(this);
 	    addShutDownHook();
 	}
-	
-    @PostConstruct
-    public void checkLocationService() {
-        if (locationService == null) {
-            log.error("LocationService is not injected properly!");
-        } else {
-            log.info("LocationService successfully injected.");
-        }
-    }
 
 	public List<UserNearByAttractionDto> getUserNearByAttractions(VisitedLocation visitedLocation, User user) {
 
@@ -222,7 +215,7 @@ public class TourGuideService {
 	        .map(attraction -> CompletableFuture.supplyAsync(() -> {
 	            try {
 	                /* Calculate the distance from the user to the attraction */
-	                double distance = locationService.getDistance(attraction, visitedLocation.location);
+	                double distance = utilsService.getDistance(attraction, visitedLocation.location);
 	                return Pair.of(attraction, distance);
 	            } catch (Exception ex) {
 	                log.error("Error processing attraction {}: {}", attraction.attractionName, ex.getMessage());
@@ -276,9 +269,5 @@ public class TourGuideService {
 			}
 		});
 	}
-
-
-
-
 
 }

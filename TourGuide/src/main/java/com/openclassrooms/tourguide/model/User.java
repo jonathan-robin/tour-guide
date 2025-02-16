@@ -139,6 +139,18 @@ public class User {
         visitedLocations.clear();
     }
     
+    /** Clears all rewards for the user. */
+    public void clearUserRewards() {
+        userRewards.clear();
+    }
+    
+    
+    /** Clears all rewards for the user. */
+    public void clearTripDeals() {
+        tripDeals.clear();
+    }
+    
+    
     /**
      * Adds a user reward if the user has not already received it for the same attraction.
      *

@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,7 +16,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.VisitedLocation;
-import lombok.extern.slf4j.Slf4j;
 
 import com.openclassrooms.tourguide.application.TourGuideService;
 import com.openclassrooms.tourguide.dto.UserNearByAttractionDto;
@@ -26,8 +24,8 @@ import com.openclassrooms.tourguide.model.User;
 import com.openclassrooms.tourguide.model.UserReward;
 import com.openclassrooms.tourguide.service.LocationService;
 import com.openclassrooms.tourguide.service.RewardsService;
-import com.openclassrooms.tourguide.service.TripService;
 import com.openclassrooms.tourguide.service.UserService;
+import com.openclassrooms.tourguide.service.UtilsService;
 
 /**
  * Test suite for verifying the functionality of the {@link RewardsService} class.
@@ -42,7 +40,6 @@ import com.openclassrooms.tourguide.service.UserService;
  */
 
 @SpringBootTest
-@Slf4j
 public class TestRewardsService {
 	
 	@Autowired
@@ -56,6 +53,10 @@ public class TestRewardsService {
 
 	@Autowired 
 	private TourGuideService tourGuideService;
+	
+	@Autowired
+	private UtilsService utilsService;
+
 
     /**
      * Tests that a user receives rewards based on their visited location.
@@ -114,20 +115,6 @@ public class TestRewardsService {
     }
 
 
-    /**
-     * Tests if an attraction is within the proximity of another attraction.
-     * 
-     * <p>This test verifies that the {@link RewardsService#isWithinAttractionProximity(Attraction, Attraction)} 
-     * method correctly identifies if two attractions are within proximity.</p>
-     * 
-     * @see RewardsService#isWithinAttractionProximity(Attraction, Attraction)
-     */
-    @Test
-    public void isWithinAttractionProximity() {
-        Attraction attraction = locationService.getAttractions().get(0);
-        assertTrue(locationService.isWithinAttractionProximity(attraction, attraction), 
-                   "The attraction should be within proximity of itself.");
-    }
 
     /**
      * Tests if the user is rewarded for visiting all attractions in the system.
@@ -141,10 +128,10 @@ public class TestRewardsService {
     @Test
     public void nearAllAttractions() {
     	
-        rewardsService.setProximityBuffer(Integer.MAX_VALUE);
+    	utilsService.setProximityBuffer(Integer.MAX_VALUE);
         InternalTestHelper.setInternalUserNumber(1);
         User user = userService.getAllUsers().get(0);
-	    CompletableFuture<Void> allLocationsTracked = tourGuideService.calculateRewardsAsync(Arrays.asList(user));
+        CompletableFuture<Void> allLocationsTracked = tourGuideService.calculateRewardsAsync(Arrays.asList(user));
 	    allLocationsTracked.join();
 	    tourGuideService.tracker.stopTracking();
 

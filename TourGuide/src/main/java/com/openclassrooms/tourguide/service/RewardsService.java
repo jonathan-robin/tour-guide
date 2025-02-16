@@ -1,5 +1,6 @@
 package com.openclassrooms.tourguide.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -8,6 +9,7 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import gpsUtil.location.Attraction;
@@ -15,6 +17,7 @@ import gpsUtil.location.VisitedLocation;
 import lombok.extern.slf4j.Slf4j;
 import rewardCentral.RewardCentral;
 
+import com.openclassrooms.tourguide.config.AsyncConfig;
 import com.openclassrooms.tourguide.dto.UserNearByAttractionDto;
 import com.openclassrooms.tourguide.model.User;
 import com.openclassrooms.tourguide.model.UserReward;
@@ -23,28 +26,19 @@ import com.openclassrooms.tourguide.model.UserReward;
 @Slf4j
 public class RewardsService {
 
-	ExecutorService executorService = Executors.newFixedThreadPool(45);
-	public int defaultProximityBuffer = 10;
-	public int proximityBuffer = defaultProximityBuffer;
-	
 	@Autowired
-	private LocationService locationService;
-
+	private UtilsService utilsService;
+	
+    @Autowired
+    private ThreadPoolTaskExecutor executorService;
+	
 	private final RewardCentral rewardsCentral;
 	
-	public RewardsService(RewardCentral rewardCentral) {
+	public RewardsService(RewardCentral rewardCentral, AsyncConfig config) {
 		this.rewardsCentral = rewardCentral;
+		this.executorService = config.taskExecutor();
 	}
 
-	
-	public void setProximityBuffer(int proximityBuffer) {
-		this.proximityBuffer = proximityBuffer;
-	}
-	
-	public void setDefaultProximityBuffer() {
-		proximityBuffer = defaultProximityBuffer;
-	}
-	
 	/**
 	 * Calculates the rewards for a given user based on their visited locations and the nearby attractions.
 	 * 
@@ -66,23 +60,23 @@ public class RewardsService {
 	public void calculateRewards(User user, List<Attraction> attractions) {
 		
 		/* maybe not needed userLocation COPY */
-		   	CopyOnWriteArrayList<VisitedLocation> userLocations = new CopyOnWriteArrayList<>(user.getVisitedLocations());
-		    CopyOnWriteArrayList<UserReward> rewards = new CopyOnWriteArrayList<>(user.getUserRewards());
-		    CopyOnWriteArrayList<UserReward> newRewards = new CopyOnWriteArrayList<>();
+		   	List<VisitedLocation> userLocations = new ArrayList<>(user.getVisitedLocations());
+//		    CopyOnWriteArrayList<UserReward> rewards = new CopyOnWriteArrayList<>(user.getUserRewards());
+//		    CopyOnWriteArrayList<UserReward> newRewards = new CopyOnWriteArrayList<>();
   
 		    
 		    for (VisitedLocation visitedLocation : userLocations) {
 		    	
 		    	for (Attraction attraction : attractions) {
 		    		
-		    		if (!rewards.stream().anyMatch(r -> r.attraction.attractionName.equals(attraction.attractionName))
-		    				&& nearAttraction(visitedLocation, attraction)) {
-		    			newRewards.add(new UserReward(visitedLocation, attraction, getRewardPoints(attraction, user)));
+		    		if (!user.getUserRewards().stream().anyMatch(r -> r.attraction.attractionName.equals(attraction.attractionName))
+		    				&& utilsService.nearAttraction(visitedLocation, attraction)) {
+		    			user.addUserReward(new UserReward(visitedLocation, attraction, getRewardPoints(attraction, user)));
 		    		}
 		    	}
 		    }
 
-		    newRewards.forEach(user::addUserReward);
+//		    newRewards.forEach(user::addUserReward);
 	}
 	
 
@@ -113,31 +107,14 @@ public class RewardsService {
 	public int getRewardPoints(Attraction attraction, User user) {
 	    return rewardsCentral.getAttractionRewardPoints(attraction.attractionId, user.getUserId());
 	}
-	
-	/**
-	 * Checks whether the visited location is within the proximity buffer of the attraction.
-	 * 
-	 * <p>This method calculates the distance between the given visited location and the specified 
-	 * attraction, and returns {@code true} if the distance is within the proximity buffer, 
-	 * or {@code false} otherwise.</p>
-	 * 
-	 * @param visitedLocation The visited location to check for proximity to the attraction.
-	 * @param attraction The attraction to check the proximity against.
-	 * @return {@code true} if the visited location is within the proximity buffer of the attraction, 
-	 *         {@code false} otherwise.
-	 */
-	private boolean nearAttraction(VisitedLocation visitedLocation, Attraction attraction) {
-	    return locationService.getDistance(attraction, visitedLocation.location) > proximityBuffer ? false : true;
-	}
-	
+
 
 	public List<UserNearByAttractionDto> convertToUserNearByAttractionDtos(List<Attraction> attractions, VisitedLocation visitedLocation, User user) {
 	
-	    /* Calculer les DTOs avec les points de récompense */
 	    List<CompletableFuture<UserNearByAttractionDto>> futureDtos = attractions.stream()
 	        .map(attraction -> CompletableFuture.supplyAsync(() -> {
 	            try {
-	                double distance = locationService.getDistance(attraction, visitedLocation.location);
+	                double distance = utilsService.getDistance(attraction, visitedLocation.location);
 	                int rewardPoints = getRewardPoints(attraction, user);
 	
 	                return new UserNearByAttractionDto(

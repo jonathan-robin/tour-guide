@@ -34,25 +34,15 @@ public class LocationService {
 	@Autowired
 	private GpsUtil gpsUtil;
 	
-//	@Autowired
-//	private RewardsService rewardsService;
-	
-    private static final double STATUTE_MILES_PER_NAUTICAL_MILE = 1.15077945;
+	@Autowired
+	private UtilsService utilsService;
 
-   
-	private int attractionProximityRange = 200;
-	
     @Autowired
     private ThreadPoolTaskExecutor executorService;
-    
-    @Autowired
-    private AsyncConfig config;
+
 	
-//	private final ExecutorService executorService = Executors.newFixedThreadPool(10);
-	
-	public LocationService(GpsUtil gpsUtil) { 
+	public LocationService(GpsUtil gpsUtil, AsyncConfig config) { 
 		this.gpsUtil = gpsUtil;
-		this.config = new AsyncConfig();
 		this.executorService = config.taskExecutor();
 	}
 
@@ -161,7 +151,7 @@ public class LocationService {
 	    List<CompletableFuture<Pair<Attraction, Double>>> futureDistances = attractions.stream()
 	        .map(attraction -> CompletableFuture.supplyAsync(() -> {
 	            try {
-	                double distance = getDistance(attraction, visitedLocation.location);
+	                double distance = utilsService.getDistance(attraction, visitedLocation.location);
 	                return Pair.of(attraction, distance);
 	            } catch (Exception ex) {
 	                log.error("Error processing attraction {}: {}", attraction.attractionName, ex.getMessage());
@@ -178,47 +168,6 @@ public class LocationService {
 	        .map(Pair::getLeft)
 	        .collect(Collectors.toList());
 	}
-	/**
-	 * Calculates the distance between two locations using the Haversine formula.
-	 * 
-	 * <p>This method calculates the great-circle distance between two locations, expressed 
-	 * in statute miles, based on their latitude and longitude.</p>
-	 * 
-	 * @param loc1 The first location.
-	 * @param loc2 The second location.
-	 * @return The distance between the two locations in statute miles.
-	 */
-	public double getDistance(Location loc1, Location loc2) {
-	    double lat1 = Math.toRadians(loc1.latitude);
-	    double lon1 = Math.toRadians(loc1.longitude);
-	    double lat2 = Math.toRadians(loc2.latitude);
-	    double lon2 = Math.toRadians(loc2.longitude);
-
-	    double angle = Math.acos(Math.sin(lat1) * Math.sin(lat2)
-	                            + Math.cos(lat1) * Math.cos(lat2) * Math.cos(lon1 - lon2));
-
-	    double nauticalMiles = 60 * Math.toDegrees(angle);
-	    double statuteMiles = STATUTE_MILES_PER_NAUTICAL_MILE * nauticalMiles;
-	    return statuteMiles;
-	}
 	
-	/**
-	 * Checks whether the given location is within the proximity range of an attraction.
-	 * 
-	 * <p>This method calculates the distance between the specified attraction and the location 
-	 * and returns {@code true} if the distance is within the proximity range of the attraction, 
-	 * or {@code false} otherwise.</p>
-	 * 
-	 * @param attraction The attraction to check the proximity against.
-	 * @param location The location to check for proximity to the attraction.
-	 * @return {@code true} if the location is within the attraction's proximity range, 
-	 *         {@code false} otherwise.
-	 */
-	public boolean isWithinAttractionProximity(Attraction attraction, Location location) {
-	    return getDistance(attraction, location) > attractionProximityRange ? false : true;
-	}
-
-
-
 	
 }
