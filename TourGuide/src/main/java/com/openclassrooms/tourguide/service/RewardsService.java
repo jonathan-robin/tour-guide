@@ -60,12 +60,12 @@ public class RewardsService {
 		
 		log.info("Rewards : " + user.getUserId() + " - Thread: " + Thread.currentThread().getName());
 		/* maybe not needed userLocation COPY */
-		   	List<VisitedLocation> userLocations = new ArrayList<>(user.getVisitedLocations());
+		   	List<VisitedLocation> location = new ArrayList<>(user.getVisitedLocations());
 //		    CopyOnWriteArrayList<UserReward> rewards = new CopyOnWriteArrayList<>(user.getUserRewards());
 //		    CopyOnWriteArrayList<UserReward> newRewards = new CopyOnWriteArrayList<>();
   
 		    
-		    for (VisitedLocation visitedLocation : userLocations) {
+		    for (VisitedLocation visitedLocation : location) {
 		    	
 		    	for (Attraction attraction : attractions) {
 		    		

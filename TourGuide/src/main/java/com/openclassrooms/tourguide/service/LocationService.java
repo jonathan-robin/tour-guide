@@ -27,14 +27,11 @@ import lombok.extern.slf4j.Slf4j;
 
 
 @Slf4j
-@Scope("singleton")
 @Service
 public class LocationService {
 	
 	private final GpsUtil gpsUtil;
-	
 	private final UtilsService utilsService;
-
     private final ThreadPoolTaskExecutor executorService;
 	
 	public LocationService(GpsUtil gpsUtil, AsyncConfig config, UtilsService utilsService) { 
@@ -163,6 +160,5 @@ public class LocationService {
 	        .map(Pair::getLeft)
 	        .collect(Collectors.toList());
 	}
-	
 	
 }

@@ -38,21 +38,10 @@ import jakarta.annotation.PostConstruct;
 @Slf4j
 public class TourGuideService {
 
-	@Autowired
-	private RewardsService rewardsService;
-
-	@Autowired
+	private final RewardsService rewardsService;
     private final LocationService locationService; 
-	
-	@Autowired
-	private TripService tripService;
-	
-	@Autowired
-	private UtilsService utilsService;
-
-    @Autowired
-    private ThreadPoolTaskExecutor executorService;
-    
+	private final UtilsService utilsService;
+    private final ThreadPoolTaskExecutor executorService;
 	public final Tracker tracker;	
 
 
@@ -66,11 +55,11 @@ public class TourGuideService {
 	 * @param gpsUtil The GPS utility used to get the location data.
 	 * @param rewardsService The rewards service used to manage user rewards.
 	 */
-	public TourGuideService(RewardsService rewardsService, LocationService locationService, TripService tripService, AsyncConfig config) {
+	public TourGuideService(RewardsService rewardsService, LocationService locationService, AsyncConfig config, UtilsService utilsService) {
 	    this.rewardsService = rewardsService;
 	    this.locationService = locationService;
-	    this.tripService = tripService;
 	    this.executorService = config.taskExecutor();
+	    this.utilsService = utilsService;
 	    
         log.info("TourGuideService initialized with LocationService: {}", locationService);
 	    
@@ -108,15 +97,11 @@ public class TourGuideService {
 	 * @throws java.lang.InterruptedException If the current thread is interrupted while waiting for the completion of tasks.
 	 */
 	public CompletableFuture<Void> trackUsersLocationsAsync(List<User> users) {
-		
-//		List<VisitedLocation> visitedLocations =  Collections.synchronizedList(new ArrayList<>());
 		 
 		List<CompletableFuture<Void>> futuresLocation = users.parallelStream()
 			 .map(user -> CompletableFuture.supplyAsync(() -> {
 				  	log.info("Tracking user: " + user.getUserId() + " - Thread: " + Thread.currentThread().getName());
-
 		            VisitedLocation visitedLocation = locationService.trackUserLocation(user);
-//		            visitedLocations.add(visitedLocation);
 		            return visitedLocation;
 		        }, executorService)
 
@@ -129,17 +114,9 @@ public class TourGuideService {
             }))
         .collect(Collectors.toList());
 
-//		futuresLocation.join();
 	    CompletableFuture<Void> allLocationsTracked = CompletableFuture.allOf(futuresLocation.toArray(new CompletableFuture[0]));
-
 	    return allLocationsTracked;
-		
-//	    CompletableFuture.allOf(futuresLocation.toArray(new CompletableFuture[0]));
-//	    CompletableFuture<Void> futuresRewards = calculateRewardsAsync(users);
-//	    CompletableFuture.allOf(futuresRewards);
-//	    CompletableFuture<Void> futures = CompletableFuture.allOf(futuresRewards, futuresRewards);
-//	    
-//	    return futures;
+
 	}
 	
 	

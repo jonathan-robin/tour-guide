@@ -10,7 +10,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.test.annotation.Rollback;
 
 import gpsUtil.GpsUtil;
@@ -26,8 +25,10 @@ import com.openclassrooms.tourguide.service.LocationService;
 import com.openclassrooms.tourguide.service.RewardsService;
 import com.openclassrooms.tourguide.service.TripService;
 import com.openclassrooms.tourguide.service.UserService;
+import com.openclassrooms.tourguide.service.UtilsService;
 
 import tripPricer.Provider;
+import tripPricer.TripPricer;
 
 /**
  * Test suite for verifying the functionality of the {@link TourGuideService} class.
@@ -51,13 +52,13 @@ public class TestTourGuideService {
 	private RewardsService rewardsService;
 	
 	@Autowired
-	private TripService tripService;
-	
-	@Autowired
 	private TourGuideService tourGuideService;
 	
 	@Autowired
 	private LocationService locationService;
+	
+	@Autowired
+	private UtilsService utilsService;
     
     @Autowired
     private AsyncConfig config;
@@ -65,7 +66,7 @@ public class TestTourGuideService {
    @BeforeEach
     public void setUp() {
 	   config = new AsyncConfig();
-	   tourGuideService = new TourGuideService(rewardsService, locationService, tripService, config);
+	   tourGuideService = new TourGuideService(rewardsService, locationService, config, utilsService);
 	   InternalTestHelper.setInternalUserNumber(0);
 	   userService.removeAllUsers();
     }
@@ -189,7 +190,7 @@ public class TestTourGuideService {
     public void getTripDeals() {
 
         User user = new User(UUID.randomUUID(), "jon", "000", "jon7@tourGuide.com");
-
+        TripService tripService = new TripService(new TripPricer());
         List<Provider> providers = tripService.getTripDeals(user);
 
         tourGuideService.tracker.stopTracking();
