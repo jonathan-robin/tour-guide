@@ -65,7 +65,7 @@ public class TestRewardsService {
     
     @BeforeEach()
     public void setup() { 
-	InternalTestHelper.setInternalUserNumber(0);
+	InternalTestHelper.setInternalUserNumber(10);
         userService.removeAllUsers();
     	user = userService.getAllUsers().get(0);
     	attraction = locationService.getAttractions().get(0);
