@@ -46,7 +46,7 @@ public class LocationServiceTest {
     void setUp() {
  	   InternalTestHelper.setInternalUserNumber(10);
  	   userService.initializeInternalUsers();
-       locationService = new LocationService(gpsUtils, new AsyncConfig());
+       locationService = new LocationService(gpsUtils, new AsyncConfig(), new UtilsService());
     }
 
     @Test

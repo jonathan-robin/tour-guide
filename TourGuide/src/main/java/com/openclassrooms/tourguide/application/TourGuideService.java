@@ -108,14 +108,15 @@ public class TourGuideService {
 	 * @throws java.lang.InterruptedException If the current thread is interrupted while waiting for the completion of tasks.
 	 */
 	public CompletableFuture<Void> trackUsersLocationsAsync(List<User> users) {
-		List<VisitedLocation> visitedLocations =  Collections.synchronizedList(new ArrayList<>());
+		
+//		List<VisitedLocation> visitedLocations =  Collections.synchronizedList(new ArrayList<>());
 		 
 		List<CompletableFuture<Void>> futuresLocation = users.parallelStream()
 			 .map(user -> CompletableFuture.supplyAsync(() -> {
 				  	log.info("Tracking user: " + user.getUserId() + " - Thread: " + Thread.currentThread().getName());
 
 		            VisitedLocation visitedLocation = locationService.trackUserLocation(user);
-		            visitedLocations.add(visitedLocation);
+//		            visitedLocations.add(visitedLocation);
 		            return visitedLocation;
 		        }, executorService)
 

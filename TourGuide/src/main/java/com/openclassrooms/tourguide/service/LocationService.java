@@ -31,16 +31,15 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class LocationService {
 	
-	@Autowired
-	private GpsUtil gpsUtil;
+	private final GpsUtil gpsUtil;
 	
-	@Autowired
-	private UtilsService utilsService;
+	private final UtilsService utilsService;
 
     private final ThreadPoolTaskExecutor executorService;
 	
-	public LocationService(GpsUtil gpsUtil, AsyncConfig config) { 
+	public LocationService(GpsUtil gpsUtil, AsyncConfig config, UtilsService utilsService) { 
 		this.gpsUtil = gpsUtil;
+		this.utilsService = utilsService;
 		this.executorService = config.taskExecutor();
 	}
 	
@@ -76,7 +75,6 @@ public class LocationService {
 	public VisitedLocation trackUserLocation(User user) {
 		VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
 		user.addToVisitedLocations(visitedLocation);
-//		rewardsService.calculateRewards(user, getAttractions());
 		return visitedLocation;
 	}
 
