@@ -115,13 +115,12 @@ public class TourGuideService {
 				  	log.info("Tracking user: " + user.getUserId() + " - Thread: " + Thread.currentThread().getName());
 
 		            VisitedLocation visitedLocation = locationService.trackUserLocation(user);
-//		            rewardsService.calculateRewards(user, locationService.getAttractions());
 		            visitedLocations.add(visitedLocation);
 		            return visitedLocation;
 		        }, executorService)
 
 	        .thenAccept(visitedLocation -> {
-
+	            rewardsService.calculateRewards(user, locationService.getAttractions());
 	        })
             .exceptionally(ex -> {
             	log.warn("Error tracking location for user {}: {}", user.getUserName(), ex.getMessage());
@@ -130,13 +129,16 @@ public class TourGuideService {
         .collect(Collectors.toList());
 
 //		futuresLocation.join();
+	    CompletableFuture<Void> allLocationsTracked = CompletableFuture.allOf(futuresLocation.toArray(new CompletableFuture[0]));
+
+	    return allLocationsTracked;
 		
-	    CompletableFuture.allOf(futuresLocation.toArray(new CompletableFuture[0]));
-	    CompletableFuture<Void> futuresRewards = calculateRewardsAsync(users);
-	    CompletableFuture.allOf(futuresRewards);
-	    CompletableFuture<Void> futures = CompletableFuture.allOf(futuresRewards, futuresRewards);
-	    
-	    return futures;
+//	    CompletableFuture.allOf(futuresLocation.toArray(new CompletableFuture[0]));
+//	    CompletableFuture<Void> futuresRewards = calculateRewardsAsync(users);
+//	    CompletableFuture.allOf(futuresRewards);
+//	    CompletableFuture<Void> futures = CompletableFuture.allOf(futuresRewards, futuresRewards);
+//	    
+//	    return futures;
 	}
 	
 	

@@ -37,15 +37,12 @@ public class LocationService {
 	@Autowired
 	private UtilsService utilsService;
 
-    @Autowired
-    private ThreadPoolTaskExecutor executorService;
-
+    private final ThreadPoolTaskExecutor executorService;
 	
 	public LocationService(GpsUtil gpsUtil, AsyncConfig config) { 
 		this.gpsUtil = gpsUtil;
 		this.executorService = config.taskExecutor();
 	}
-
 	
 	/**
 	 * Retrieves the current location of the specified user.

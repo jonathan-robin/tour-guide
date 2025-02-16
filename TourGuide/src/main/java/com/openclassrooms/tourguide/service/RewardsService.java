@@ -29,8 +29,7 @@ public class RewardsService {
 	@Autowired
 	private UtilsService utilsService;
 	
-    @Autowired
-    private ThreadPoolTaskExecutor executorService;
+    private final ThreadPoolTaskExecutor executorService;
 	
 	private final RewardCentral rewardsCentral;
 	
@@ -59,6 +58,7 @@ public class RewardsService {
 	 */
 	public void calculateRewards(User user, List<Attraction> attractions) {
 		
+		log.info("Rewards : " + user.getUserId() + " - Thread: " + Thread.currentThread().getName());
 		/* maybe not needed userLocation COPY */
 		   	List<VisitedLocation> userLocations = new ArrayList<>(user.getVisitedLocations());
 //		    CopyOnWriteArrayList<UserReward> rewards = new CopyOnWriteArrayList<>(user.getUserRewards());

@@ -42,13 +42,9 @@ public class TestPerformance {
 	@Autowired
 	private TourGuideService tourGuideService;
 	
-//	@Autowired
-//	private AsyncConfig asyncConfig;
-	
    @BeforeEach
     public void setUp() {
-//	   asyncConfig.taskExecutor();
-	   InternalTestHelper.setInternalUserNumber(100);
+	   InternalTestHelper.setInternalUserNumber(10000);
 	   userService.initializeInternalUsers();
     }
 
@@ -78,17 +74,12 @@ public class TestPerformance {
 
 		List<User> allUsers = new ArrayList<>();
 		allUsers = userService.getAllUsers();
-		
-
 
 	    CompletableFuture<Void> allLocationsTracked = tourGuideService.trackUsersLocationsAsync(allUsers);
 	    allLocationsTracked.join(); 
 
 		stopWatch.stop();
 		tourGuideService.tracker.stopTracking();
-		
-
-
 
 		System.out.println("highVolumeTrackLocation: Time Elapsed: "
 				+ TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()) + " seconds.");
