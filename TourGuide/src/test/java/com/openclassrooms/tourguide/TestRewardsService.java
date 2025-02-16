@@ -125,17 +125,18 @@ public class TestRewardsService {
      */
     @Test
     public void nearAllAttractions() {
-    	
     	utilsService.setProximityBuffer(Integer.MAX_VALUE);
         InternalTestHelper.setInternalUserNumber(1);
-        rewardsService.calculateRewards(userService.getAllUsers().get(0), gpsUtils.getAttractions());
-		List<UserReward> userRewards = rewardsService.getUserRewards(userService.getAllUsers().get(0));
-//        User user = userService.getAllUsers().get(0);
-//        CompletableFuture<Void> allLocationsTracked = tourGuideService.calculateRewardsAsync(Arrays.asList(user));
-//	    allLocationsTracked.join();
+        
+        /* first version of calculate rewards */
+        tourGuideService.calculateRewards(userService.getAllUsers().get(0));
+		/* async version */
+        User user = userService.getAllUsers().get(0);
+        CompletableFuture<Void> allLocationsTracked = tourGuideService.calculateRewardsAsync(Arrays.asList(user));
+	    allLocationsTracked.join();
 	    tourGuideService.tracker.stopTracking();
 
-        assertEquals(locationService.getAttractions().size(), userRewards.size(), 
+        assertEquals(locationService.getAttractions().size(), user.getUserRewards().size(), 
                      "User should have received rewards for all attractions.");
     }
 }

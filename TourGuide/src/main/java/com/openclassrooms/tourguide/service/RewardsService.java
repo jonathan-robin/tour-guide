@@ -58,28 +58,17 @@ public class RewardsService {
 	 */
 	public void calculateRewards(User user, List<Attraction> attractions) {
 		
-		log.info("Rewards : " + user.getUserId() + " - Thread: " + Thread.currentThread().getName());
-		/* maybe not needed userLocation COPY */
-		   	List<VisitedLocation> location = new ArrayList<>(user.getVisitedLocations());
-//		    CopyOnWriteArrayList<UserReward> rewards = new CopyOnWriteArrayList<>(user.getUserRewards());
-//		    CopyOnWriteArrayList<UserReward> newRewards = new CopyOnWriteArrayList<>();
-  
-		    
-		    for (VisitedLocation visitedLocation : location) {
-		    	
-		    	for (Attraction attraction : attractions) {
-		    		
-		    		if (!user.getUserRewards().stream().anyMatch(r -> r.attraction.attractionName.equals(attraction.attractionName))
-		    				&& utilsService.nearAttraction(visitedLocation, attraction)) {
-		    			user.addUserReward(new UserReward(visitedLocation, attraction, getRewardPoints(attraction, user)));
-		    		}
-		    	}
-		    }
+		log.info("Calculate Rewards:  : " + user.getUserId() + " - Thread: " + Thread.currentThread().getName());
+	   	List<VisitedLocation> userLocations = new CopyOnWriteArrayList<>(user.getVisitedLocations());
 
-//		    newRewards.forEach(user::addUserReward);
+	    for (VisitedLocation visitedLocation : userLocations) {
+	    	for (Attraction attraction : attractions) {
+	    		if (!user.getUserRewards().stream().anyMatch(r -> r.attraction.attractionName.equals(attraction.attractionName))
+	    				&& utilsService.nearAttraction(visitedLocation, attraction)) 
+	    			user.addUserReward(new UserReward(visitedLocation, attraction, getRewardPoints(attraction, user)));
+	    	}
+	    }
 	}
-	
-
 
 	/**
 	 * Gets the list of rewards for the specified user.
