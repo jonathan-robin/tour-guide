@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.VisitedLocation;
+import rewardCentral.RewardCentral;
 
 import com.openclassrooms.tourguide.application.TourGuideService;
 import com.openclassrooms.tourguide.dto.UserNearByAttractionDto;
@@ -56,9 +58,35 @@ public class TestRewardsService {
 	
 	@Autowired
 	private UtilsService utilsService;
+
+    private User user;
+    private Attraction attraction;
+    private VisitedLocation visitedLocation;
+    
+    @BeforeEach()
+    public void setup() { 
+    	user = userService.getAllUsers().get(0);
+    	attraction = locationService.getAttractions().get(0);
+    }
 	
-	@Autowired
-	private GpsUtil gpsUtils;
+    @Test
+    void testCalculateRewards_UserEarnsReward() {
+    	
+        locationService.trackUserLocation(user);
+        rewardsService.calculateRewards(user, Arrays.asList(attraction));
+        user.addUserReward(new UserReward(visitedLocation, attraction, 100)); 
+        List<UserReward> rewards = rewardsService.getUserRewards(user);
+        assertTrue(rewards.size() > 1);
+        assertTrue(rewards.get(0).getRewardPoints() > 100);
+    }
+    
+    @Test
+    void testCalculateRewards_UserAlreadyRewarded() {
+        user.addUserReward(new UserReward(visitedLocation, attraction, 100));
+        rewardsService.calculateRewards(user, Arrays.asList(attraction));
+        List<UserReward> rewards = rewardsService.getUserRewards(user);
+        assertEquals(1, rewards.size());
+    }
 
 
     /**
