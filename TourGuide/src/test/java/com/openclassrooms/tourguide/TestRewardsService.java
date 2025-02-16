@@ -87,22 +87,17 @@ public class TestRewardsService {
     
     @Test
     public void testConvertToUserNearByAttractionDtos() {
-        // Création d'un utilisateur de test
         User user = new User(UUID.randomUUID(), "testUser", "000", "test@tourGuide.com");
 
-        // Création d'un emplacement visité fictif
         VisitedLocation visitedLocation = new VisitedLocation(user.getUserId(), 
             new gpsUtil.location.Location(34.0522, -118.2437), new Date());
 
-        // Création d'attractions fictives
         List<Attraction> attractions = Arrays.asList(
         		locationService.getAttractions().get(0), locationService.getAttractions().get(1)
         );
 
-        // Appel de la méthode testée
         List<UserNearByAttractionDto> result = rewardsService.convertToUserNearByAttractionDtos(attractions, visitedLocation, user);
 
-        // Vérifications
         assertEquals(attractions.size(), result.size(), "Le nombre de DTOs retournés doit être égal au nombre d'attractions.");
 
         for (int i = 0; i < attractions.size(); i++) {
