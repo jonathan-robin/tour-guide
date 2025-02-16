@@ -36,6 +36,9 @@ public class LocationServiceTest {
     @Autowired
     private GpsUtil gpsUtils;
     
+    @Autowired
+    private UtilsService utilsService;
+    
     @MockBean
     private LocationService locationService;
 
