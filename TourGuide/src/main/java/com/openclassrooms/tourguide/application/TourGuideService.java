@@ -6,34 +6,20 @@ import com.openclassrooms.tourguide.model.User;
 import com.openclassrooms.tourguide.model.UserReward;
 import com.openclassrooms.tourguide.service.LocationService;
 import com.openclassrooms.tourguide.service.RewardsService;
-import com.openclassrooms.tourguide.service.TripService;
 import com.openclassrooms.tourguide.service.UtilsService;
 import com.openclassrooms.tourguide.tracker.Tracker;
 
 import lombok.extern.slf4j.Slf4j;
-import rewardCentral.RewardCentral;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.tuple.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import gpsUtil.location.Attraction;
 import gpsUtil.location.VisitedLocation;
-import jakarta.annotation.PostConstruct;
 
 @Service
 @Slf4j
@@ -170,89 +156,6 @@ public class TourGuideService {
 				}
 			}
 		
-	}
-	
-	
-	/**
-	 * Retrieves the five nearest tourist attractions to the user's current location and calculates 
-	 * the reward points for each attraction.
-	 * 
-	 * This method performs the following tasks in two main steps:
-	 * 1. It calculates the distance from the user's location to each attraction in parallel.
-	 * 2. It then calculates the reward points for each attraction in parallel and returns a list of DTOs 
-	 *    (Data Transfer Objects) containing details of the nearest attractions.
-	 * 
-	 * @param visitedLocation The location of the user, including latitude and longitude.
-	 * @param user The user whose nearest attractions and reward points are being calculated.
-	 * @return A list of DTOs containing the details of the five nearest attractions, including:
-	 *         - Name of the attraction
-	 *         - Coordinates (latitude and longitude) of the attraction
-	 *         - Coordinates (latitude and longitude) of the user's location
-	 *         - Distance (in miles) between the user and each attraction
-	 *         - Reward points for visiting each attraction
-	 * 
-	 * @throws Exception If there is any error in processing the attractions, calculating the distance, 
-	 *                   or retrieving reward points.
-	 * 
-	 * @see UserNearByAttractionDto
-	 * @see RewardsService
-	 * @see Attraction
-	 * @see User
-	 */
-	public List<UserNearByAttractionDto> getFiveNearestAttractions(VisitedLocation visitedLocation, User user) {
-
-	    List<Attraction> attractions = locationService.getAttractions();
-
-	    /* step 1 : Calculate distances to all attractions asynchronously */
-	    List<CompletableFuture<Pair<Attraction, Double>>> futureDistances = attractions.stream()
-	        .map(attraction -> CompletableFuture.supplyAsync(() -> {
-	            try {
-	                /* Calculate the distance from the user to the attraction */
-	                double distance = utilsService.getDistance(attraction, visitedLocation.location);
-	                return Pair.of(attraction, distance);
-	            } catch (Exception ex) {
-	                log.error("Error processing attraction {}: {}", attraction.attractionName, ex.getMessage());
-	                return Pair.of(attraction, Double.MAX_VALUE); /* Return a max distance in case of error - filter out errors */
-	            }
-	        }))
-	        .collect(Collectors.toList());
-
-	    /* Collect and sort the attractions by distance, keeping only the 5 closest attractions */
-	    List<Pair<Attraction, Double>> attractionDistances = futureDistances.stream()
-	        .map(CompletableFuture::join)
-	        .sorted(Comparator.comparing(Pair::getRight))
-	        .limit(5)  /* Keep the 5 nearest attractions */
-	        .collect(Collectors.toList());
-
-	    /* step 2 : Calculate reward points for each attraction asynchronously */
-	    List<CompletableFuture<UserNearByAttractionDto>> futureDtos = attractionDistances.stream()
-	        .map(pair -> CompletableFuture.supplyAsync(() -> {
-	            try {
-	                Attraction attraction = pair.getLeft();
-	                double distance = pair.getRight();
-	                /* Calculate the reward points for the user visiting this attraction */
-	                int rewardPoints = rewardsService.getRewardPoints(attraction, user);
-
-	                return new UserNearByAttractionDto(
-	                        attraction.attractionName, 
-	                        attraction.latitude, attraction.longitude,
-	                        visitedLocation.location.latitude, visitedLocation.location.longitude,
-	                        distance, rewardPoints
-	                );
-	            } catch (Exception ex) {
-	                log.error("Error processing attraction {}: {}", pair.getLeft().attractionName, ex.getMessage());
-	                return new UserNearByAttractionDto(
-	                        pair.getLeft().attractionName, 
-	                        pair.getLeft().latitude, pair.getLeft().longitude,
-	                        visitedLocation.location.latitude, visitedLocation.location.longitude,
-	                        pair.getRight(), 0
-	                );
-	            }
-	        }))
-	        .collect(Collectors.toList());
-
-	    /** Wait for all asynchronous tasks to complete and return the results */
-	    return futureDtos.stream().map(CompletableFuture::join).collect(Collectors.toList());
 	}
 
 	private void addShutDownHook() {

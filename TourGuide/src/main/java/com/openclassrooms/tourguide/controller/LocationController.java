@@ -65,7 +65,7 @@ public class LocationController {
     public ResponseEntity<List<UserNearByAttractionDto>> getNearbyAttractions(@RequestParam String userName) {
         log.info("call API locations/getNearByAttractions with user: {}", userName);
         VisitedLocation visitedLocation = locationService.getUserLocation(userService.getUser(userName));
-        return ResponseEntity.ok(tourGuideService.getFiveNearestAttractions(visitedLocation, userService.getUser(userName)));
+        return ResponseEntity.ok(tourGuideService.getUserNearByAttractions(visitedLocation, userService.getUser(userName)));
     }
 
 	
