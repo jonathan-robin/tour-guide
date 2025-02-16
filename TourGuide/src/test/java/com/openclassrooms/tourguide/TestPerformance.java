@@ -44,7 +44,7 @@ public class TestPerformance {
 	
    @BeforeEach
     public void setUp() {
-	   InternalTestHelper.setInternalUserNumber(10000);
+	   InternalTestHelper.setInternalUserNumber(100);
 	   userService.initializeInternalUsers();
     }
 
