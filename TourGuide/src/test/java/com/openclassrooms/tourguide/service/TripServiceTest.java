@@ -3,6 +3,7 @@ package com.openclassrooms.tourguide.service;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.openclassrooms.tourguide.helper.InternalTestHelper;
 import com.openclassrooms.tourguide.model.User;
 import tripPricer.Provider;
 import tripPricer.TripPricer;
@@ -31,9 +32,9 @@ public class TripServiceTest {
 
     @BeforeEach
     public void setup() {
-        testUser = userService.getAllUsers().get(0);
-//        testUser.getUserPreferences().setNumberOfAdults(1);
-//        testUser.getUserPreferences().setTripDuration(7);
+  	   InternalTestHelper.setInternalUserNumber(10);
+  	   userService.initializeInternalUsers();
+       testUser = userService.getAllUsers().get(0);
     }
 
     @Test
