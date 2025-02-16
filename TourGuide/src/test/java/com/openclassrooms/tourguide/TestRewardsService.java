@@ -130,7 +130,7 @@ public class TestRewardsService {
         
         /* first version of calculate rewards */
         tourGuideService.calculateRewards(userService.getAllUsers().get(0));
-		/* async version */
+		/* Async version */
         User user = userService.getAllUsers().get(0);
         CompletableFuture<Void> allLocationsTracked = tourGuideService.calculateRewardsAsync(Arrays.asList(user));
 	    allLocationsTracked.join();
