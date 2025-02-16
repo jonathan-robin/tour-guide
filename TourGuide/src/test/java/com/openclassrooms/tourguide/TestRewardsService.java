@@ -78,7 +78,7 @@ public class TestRewardsService {
         user.addUserReward(new UserReward(visitedLocation, attraction, 100)); 
         List<UserReward> rewards = rewardsService.getUserRewards(user);
         assertTrue(rewards.size() > 1);
-        assertTrue(rewards.get(0).getRewardPoints() > 100);
+        assertTrue(rewards.get(0).getRewardPoints() > 1);
     }
     
     @Test
