@@ -1,11 +1,8 @@
 package com.openclassrooms.tourguide.service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +27,6 @@ public class RewardsService {
 	private UtilsService utilsService;
 	
     private final ThreadPoolTaskExecutor executorService;
-	
 	private final RewardCentral rewardsCentral;
 	
 	public RewardsService(RewardCentral rewardCentral, AsyncConfig config) {
@@ -96,7 +92,20 @@ public class RewardsService {
 	    return rewardsCentral.getAttractionRewardPoints(attraction.attractionId, user.getUserId());
 	}
 
-
+	
+	/**
+	 * Converts a list of attractions into a list of UserNearByAttractionDto objects, 
+	 * containing information about the attraction, the user's visited location, 
+	 * the distance between them, and the reward points.
+	 * 
+	 * <p>This method processes each attraction asynchronously using {@link CompletableFuture}
+	 * to improve performance under heavy load.</p>
+	 * 
+	 * @param attractions The list of attractions to process.
+	 * @param visitedLocation The user's last known visited location.
+	 * @param user The user for whom the nearby attractions are being determined.
+	 * @return A list of {@link UserNearByAttractionDto} objects containing the processed attraction data.
+	 */
 	public List<UserNearByAttractionDto> convertToUserNearByAttractionDtos(List<Attraction> attractions, VisitedLocation visitedLocation, User user) {
 	
 	    List<CompletableFuture<UserNearByAttractionDto>> futureDtos = attractions.stream()

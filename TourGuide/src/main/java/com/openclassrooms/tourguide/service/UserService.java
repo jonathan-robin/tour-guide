@@ -36,10 +36,6 @@ import lombok.extern.slf4j.Slf4j;
 public class UserService {
 	
 	Boolean testMode = true;
-
-	
-	// Database connection will be used for external users, but for testing purposes
-	// internal users are provided and stored in memory
 	public final Map<String, User> userMap = new HashMap<>();
 	
 	public UserService() {
@@ -179,7 +175,5 @@ public class UserService {
 		if (testMode)
 			userMap.clear();
 	}
-    
-
     
 }

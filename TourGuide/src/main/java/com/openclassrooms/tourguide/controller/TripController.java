@@ -2,9 +2,7 @@ package com.openclassrooms.tourguide.controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -29,6 +27,14 @@ public class TripController {
 		this.tripService = tripService;
 	}
 	
+	/**
+	 * Retrieves trip deals for a given user.
+	 * 
+	 * <p>This endpoint fetches a list of travel providers offering deals based on the user's profile.</p>
+	 * 
+	 * @param userName The username of the user requesting trip deals.
+	 * @return A {@link ResponseEntity} containing a list of {@link Provider} objects with trip deals.
+	 */
 	 @GetMapping("")
 	 public ResponseEntity<List<Provider>> getTripDeals(@RequestParam String userName) {
 	    log.info("call API /tripdeals with user: {}", userName);

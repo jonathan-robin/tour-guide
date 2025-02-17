@@ -34,7 +34,14 @@ public class LocationController {
 		this.locationService = locationService;
 	}
 
-    
+	/**
+	 * Retrieves the current location of a given user.
+	 * 
+	 * <p>This endpoint returns the last known visited location of the user.</p>
+	 * 
+	 * @param userName The username of the user requesting location information.
+	 * @return A {@link ResponseEntity} containing the {@link VisitedLocation} of the user.
+	 */
     @GetMapping("") 
     public ResponseEntity<VisitedLocation> getLocation(@RequestParam String userName) {
     	log.info("call API /locations with user: {}", userName);

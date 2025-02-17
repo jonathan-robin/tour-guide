@@ -54,6 +54,13 @@ public class LocationService {
 	    return visitedLocation;
 	}
 	
+	/**
+	 * Retrieves a list of all available tourist attractions.
+	 * 
+	 * <p>This method fetches the attractions from the GPS utility service.</p>
+	 * 
+	 * @return A list of {@link Attraction} objects.
+	 */
 	public List<Attraction> getAttractions(){ 
 		return gpsUtil.getAttractions();
 	}
@@ -139,7 +146,7 @@ public class LocationService {
 
 	    List<Attraction> attractions = gpsUtil.getAttractions();
 
-	    /* Calculer les distances aux attractions de manière asynchrone */
+	    /* Asynchrounsly compute the attractions distances */
 	    List<CompletableFuture<Pair<Attraction, Double>>> futureDistances = attractions.stream()
 	        .map(attraction -> CompletableFuture.supplyAsync(() -> {
 	            try {
@@ -152,7 +159,7 @@ public class LocationService {
 	        }, executorService))
 	        .collect(Collectors.toList());
 
-	    /* Trier et récupérer les 5 attractions les plus proches */
+	    /* Filter and keep the 5 closest attractions */
 	    return futureDistances.stream()
 	        .map(CompletableFuture::join)
 	        .sorted(Comparator.comparing(Pair::getRight))

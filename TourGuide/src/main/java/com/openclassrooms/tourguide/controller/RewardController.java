@@ -30,6 +30,14 @@ public class RewardController {
 		this.userService = userService;
 	}
     
+	/**
+	 * Retrieves the reward points for a given user.
+	 * 
+	 * <p>This endpoint returns a list of rewards earned by the user based on visited locations and attractions.</p>
+	 * 
+	 * @param userName The username of the user requesting reward information.
+	 * @return A {@link ResponseEntity} containing a list of {@link UserReward} objects representing the user's rewards.
+	 */
     @GetMapping("") 
     public ResponseEntity<List<UserReward>> getRewards(@RequestParam String userName) {
     	log.info("call GET API /rewards with user: {}", userName);
