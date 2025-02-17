@@ -9,19 +9,14 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.time.StopWatch;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.test.annotation.DirtiesContext;
 
 import gpsUtil.location.Attraction;
 import gpsUtil.location.VisitedLocation;
-import lombok.extern.slf4j.Slf4j;
-import rewardCentral.RewardCentral;
-import tripPricer.TripPricer;
 
 import com.openclassrooms.tourguide.application.TourGuideService;
 import com.openclassrooms.tourguide.config.AsyncConfig;
@@ -29,9 +24,7 @@ import com.openclassrooms.tourguide.helper.InternalTestHelper;
 import com.openclassrooms.tourguide.model.User;
 import com.openclassrooms.tourguide.service.LocationService;
 import com.openclassrooms.tourguide.service.RewardsService;
-import com.openclassrooms.tourguide.service.TripService;
 import com.openclassrooms.tourguide.service.UserService;
-import com.openclassrooms.tourguide.service.UtilsService;
 
 @SpringBootTest
 @DirtiesContext
@@ -48,12 +41,7 @@ public class TestPerformance {
 
 	@Autowired
 	private AsyncConfig config; 
-	@Autowired 
-	private UtilsService utilsService;
-	
 
-
-	
    @BeforeEach
     public void setUp() {
 	   InternalTestHelper.setInternalUserNumber(100);
@@ -83,7 +71,7 @@ public class TestPerformance {
 	@Test
 	public void highVolumeTrackLocation() throws InterruptedException, ExecutionException {
 
-		TourGuideService tourGuideService = new TourGuideService(rewardsService, locationService, config, utilsService);
+		TourGuideService tourGuideService = new TourGuideService(rewardsService, locationService, config);
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
 
@@ -127,7 +115,7 @@ public class TestPerformance {
 	 */
 	@Test
 	public void highVolumeGetRewards() {
-		TourGuideService tourGuideService = new TourGuideService(rewardsService, locationService, config, utilsService);
+		TourGuideService tourGuideService = new TourGuideService(rewardsService, locationService, config);
 
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();

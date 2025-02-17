@@ -57,9 +57,6 @@ public class RewardsServiceTest {
     @Autowired
     private LocationService locationService;
 
-//    @Autowired 
-//    private TourGuideService tourGuideService;
-
     @Autowired
     private UtilsService utilsService;
     
@@ -127,7 +124,7 @@ public class RewardsServiceTest {
      */
     @Test
     public void userGetRewards() {
-    	TourGuideService tourGuideService = new TourGuideService(rewardsService, locationService, config, utilsService);
+    	TourGuideService tourGuideService = new TourGuideService(rewardsService, locationService, config);
         InternalTestHelper.setInternalUserNumber(0);
         User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
 
@@ -178,7 +175,7 @@ public class RewardsServiceTest {
      */
     @Test
     public void nearAllAttractions() {
-    	TourGuideService tourGuideService = new TourGuideService(rewardsService, locationService, config, utilsService);
+    	TourGuideService tourGuideService = new TourGuideService(rewardsService, locationService, config);
 
         utilsService.setProximityBuffer(Integer.MAX_VALUE);
         InternalTestHelper.setInternalUserNumber(1);

@@ -56,17 +56,14 @@ public class TourGuideServiceTest {
 	
 	@Autowired
 	private LocationService locationService;
-	
-	@Autowired
-	private UtilsService utilsService;
-    
+
     @Autowired
     private AsyncConfig config;
 	
    @BeforeEach
     public void setUp() {
 	   config = new AsyncConfig();
-	   tourGuideService = new TourGuideService(rewardsService, locationService, config, utilsService);
+	   tourGuideService = new TourGuideService(rewardsService, locationService, config);
 	   InternalTestHelper.setInternalUserNumber(0);
 	   userService.removeAllUsers();
     }

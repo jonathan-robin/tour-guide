@@ -29,7 +29,7 @@ public class TourGuideService {
 
 	private final RewardsService rewardsService;
     private final LocationService locationService; 
-	private final UtilsService utilsService;
+//	private final UtilsService utilsService;
     private final ThreadPoolTaskExecutor executorService;
 	public final Tracker tracker;	
 
@@ -43,12 +43,12 @@ public class TourGuideService {
 	 *
 	 * @param gpsUtil The GPS utility used to get the location data.
 	 * @param rewardsService The rewards service used to manage user rewards.
+	 * @param asyncConfig The multi-threading config used to manage threads pool.
 	 */
-	public TourGuideService(RewardsService rewardsService, LocationService locationService, AsyncConfig config, UtilsService utilsService) {
+	public TourGuideService(RewardsService rewardsService, LocationService locationService, AsyncConfig config) {
 	    this.rewardsService = rewardsService;
 	    this.locationService = locationService;
 	    this.executorService = config.taskExecutor();
-	    this.utilsService = utilsService;
 	    
         log.info("TourGuideService initialized with LocationService: {}", locationService);
 	    
