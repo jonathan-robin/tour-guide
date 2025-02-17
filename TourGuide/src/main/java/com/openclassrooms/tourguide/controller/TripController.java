@@ -21,11 +21,13 @@ import tripPricer.Provider;
 @RequestMapping("/tripdeals") 
 public class TripController {
 
-	@Autowired
-	private TripService tripService;
+	private final TripService tripService;
+	private final UserService userService;
 	
-	@Autowired
-	private UserService userService;
+	public TripController(UserService userService, TripService tripService) { 
+		this.userService = userService; 
+		this.tripService = tripService;
+	}
 	
 	 @GetMapping("")
 	 public ResponseEntity<List<Provider>> getTripDeals(@RequestParam String userName) {

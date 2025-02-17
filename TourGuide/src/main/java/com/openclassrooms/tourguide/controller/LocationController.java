@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.openclassrooms.tourguide.application.TourGuideService;
 import com.openclassrooms.tourguide.dto.UserNearByAttractionDto;
+import com.openclassrooms.tourguide.model.User;
 import com.openclassrooms.tourguide.service.LocationService;
 import com.openclassrooms.tourguide.service.UserService;
 
@@ -23,14 +24,16 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/locations") 
 public class LocationController {
 
-	@Autowired
-	private LocationService locationService;
+	private final LocationService locationService;
+	private final TourGuideService tourGuideService;
+	private final UserService userService;
 	
-	@Autowired
-	private TourGuideService tourGuideService;
-	
-	@Autowired
-	private UserService userService;
+	public LocationController(LocationService locationService, TourGuideService tourGuideService, UserService userService) {
+		this.userService = userService;
+		this.tourGuideService = tourGuideService; 
+		this.locationService = locationService;
+	}
+
     
     @GetMapping("") 
     public ResponseEntity<VisitedLocation> getLocation(@RequestParam String userName) {
@@ -64,8 +67,9 @@ public class LocationController {
     @GetMapping("/getNearbyAttractions")
     public ResponseEntity<List<UserNearByAttractionDto>> getNearbyAttractions(@RequestParam String userName) {
         log.info("call API locations/getNearByAttractions with user: {}", userName);
-        VisitedLocation visitedLocation = locationService.getUserLocation(userService.getUser(userName));
-        return ResponseEntity.ok(tourGuideService.getUserNearByAttractions(visitedLocation, userService.getUser(userName)));
+        User user = userService.getUser(userName);
+        VisitedLocation visitedLocation = locationService.getUserLocation(user);
+        return ResponseEntity.ok(tourGuideService.getUserNearByAttractions(visitedLocation, user));
     }
 
 	

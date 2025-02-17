@@ -22,11 +22,13 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/rewards") 
 public class RewardController {
 	
-	@Autowired
-	private RewardsService rewardService;
+	private final RewardsService rewardService;
+	private final UserService userService;
 	
-	@Autowired
-	private UserService userService;
+	public RewardController(RewardsService rewardService, UserService userService) {
+		this.rewardService = rewardService; 
+		this.userService = userService;
+	}
     
     @GetMapping("") 
     public ResponseEntity<List<UserReward>> getRewards(@RequestParam String userName) {
