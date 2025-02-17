@@ -31,7 +31,6 @@ public class Tracker extends Thread {
     private static final long trackingPollingInterval = TimeUnit.MINUTES.toSeconds(5);
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final TourGuideService tourGuideService;
-//    private final LocationService locationService;
     private UserService userService;
     @Autowired
     private LocationService locationService;
@@ -44,7 +43,6 @@ public class Tracker extends Thread {
      */
     public Tracker(TourGuideService tourGuideService) {
         this.tourGuideService = tourGuideService;
-//        this.locationService = locationService;
         executorService.submit(this);
     }
 

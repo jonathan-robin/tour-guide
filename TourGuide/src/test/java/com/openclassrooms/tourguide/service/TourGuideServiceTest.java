@@ -14,18 +14,12 @@ import org.springframework.test.annotation.Rollback;
 
 import gpsUtil.GpsUtil;
 import gpsUtil.location.VisitedLocation;
-import lombok.extern.slf4j.Slf4j;
 
 import com.openclassrooms.tourguide.application.TourGuideService;
 import com.openclassrooms.tourguide.config.AsyncConfig;
 import com.openclassrooms.tourguide.dto.UserNearByAttractionDto;
 import com.openclassrooms.tourguide.helper.InternalTestHelper;
 import com.openclassrooms.tourguide.model.User;
-import com.openclassrooms.tourguide.service.LocationService;
-import com.openclassrooms.tourguide.service.RewardsService;
-import com.openclassrooms.tourguide.service.TripService;
-import com.openclassrooms.tourguide.service.UserService;
-import com.openclassrooms.tourguide.service.UtilsService;
 
 import tripPricer.Provider;
 import tripPricer.TripPricer;
@@ -42,7 +36,6 @@ import tripPricer.TripPricer;
  * users and their locations, and when retrieving nearby attractions and trip deals.</p>
  */
 @SpringBootTest
-@Slf4j
 public class TourGuideServiceTest {
 	
 	@Autowired

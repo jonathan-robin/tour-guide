@@ -1,12 +1,10 @@
 package com.openclassrooms.tourguide.service;
 
-import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.openclassrooms.tourguide.helper.InternalTestHelper;
 import com.openclassrooms.tourguide.model.User;
 import tripPricer.Provider;
-import tripPricer.TripPricer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +26,6 @@ import java.util.UUID;
  */
 @SpringBootTest
 public class TripServiceTest {
-
-    @Autowired
-    private TripPricer tripPricer;
     
     @Autowired
     private UserService userService;

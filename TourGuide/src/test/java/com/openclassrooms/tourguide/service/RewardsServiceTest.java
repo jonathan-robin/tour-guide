@@ -8,20 +8,16 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 
-import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.VisitedLocation;
-import jakarta.annotation.PreDestroy;
-import rewardCentral.RewardCentral;
+
 
 import com.openclassrooms.tourguide.application.TourGuideService;
 import com.openclassrooms.tourguide.config.AsyncConfig;
@@ -29,10 +25,7 @@ import com.openclassrooms.tourguide.dto.UserNearByAttractionDto;
 import com.openclassrooms.tourguide.helper.InternalTestHelper;
 import com.openclassrooms.tourguide.model.User;
 import com.openclassrooms.tourguide.model.UserReward;
-import com.openclassrooms.tourguide.service.LocationService;
-import com.openclassrooms.tourguide.service.RewardsService;
-import com.openclassrooms.tourguide.service.UserService;
-import com.openclassrooms.tourguide.service.UtilsService;
+
 /**
  * Unit tests for the {@link RewardsService} class.
  * 

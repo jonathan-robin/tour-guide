@@ -5,7 +5,6 @@ import com.openclassrooms.tourguide.dto.UserNearByAttractionDto;
 import com.openclassrooms.tourguide.model.User;
 import com.openclassrooms.tourguide.service.LocationService;
 import com.openclassrooms.tourguide.service.RewardsService;
-import com.openclassrooms.tourguide.service.UtilsService;
 import com.openclassrooms.tourguide.tracker.Tracker;
 
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +28,6 @@ public class TourGuideService {
 
 	private final RewardsService rewardsService;
     private final LocationService locationService; 
-//	private final UtilsService utilsService;
     private final ThreadPoolTaskExecutor executorService;
 	public final Tracker tracker;	
 
@@ -93,15 +91,13 @@ public class TourGuideService {
 		            VisitedLocation visitedLocation = locationService.trackUserLocation(user);
 		            return visitedLocation;
 		        }, executorService)
-
-	        .thenAccept(visitedLocation -> {
-	            rewardsService.calculateRewards(user, locationService.getAttractions());
-	        })
-            .exceptionally(ex -> {
-            	log.warn("Error tracking location for user {}: {}", user.getUserName(), ex.getMessage());
-            	return null;
-            }))
-        .collect(Collectors.toList());
+					 .thenAccept(visitedLocation -> {
+						 rewardsService.calculateRewards(user, locationService.getAttractions());
+					 })
+					 .exceptionally(ex -> {
+						 log.warn("Error tracking location for user {}: {}", user.getUserName(), ex.getMessage());
+						 return null;
+					 })).collect(Collectors.toList());
 
 	    CompletableFuture<Void> allLocationsTracked = CompletableFuture.allOf(futuresLocation.toArray(new CompletableFuture[0]));
 	    return allLocationsTracked;
