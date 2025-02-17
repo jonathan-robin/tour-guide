@@ -23,7 +23,6 @@ public class UtilsService {
 	public void setDefaultProximityBuffer() {
 		proximityBuffer = defaultProximityBuffer;
 	}
-	
 
 	/**
 	 * Calculates the distance between two locations using the Haversine formula.

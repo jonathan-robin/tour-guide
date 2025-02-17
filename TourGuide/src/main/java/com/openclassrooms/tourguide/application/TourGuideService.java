@@ -13,13 +13,16 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import gpsUtil.location.Attraction;
 import gpsUtil.location.VisitedLocation;
+import jakarta.annotation.PreDestroy;
 
 @Service
 @Slf4j
@@ -83,11 +86,11 @@ public class TourGuideService {
 	 * @throws java.util.concurrent.ExecutionException If one of the asynchronous tasks throws an exception that is not handled.
 	 * @throws java.lang.InterruptedException If the current thread is interrupted while waiting for the completion of tasks.
 	 */
+	@Async
 	public CompletableFuture<Void> trackUsersLocationsAsync(List<User> users) {
 		 
 		List<CompletableFuture<Void>> futuresLocation = users.parallelStream()
 			 .map(user -> CompletableFuture.supplyAsync(() -> {
-				  	log.info("Tracking user: " + user.getUserId() + " - Thread: " + Thread.currentThread().getName());
 		            VisitedLocation visitedLocation = locationService.trackUserLocation(user);
 		            return visitedLocation;
 		        }, executorService)
@@ -126,6 +129,7 @@ public class TourGuideService {
 	 * @see CompletableFuture
 	 * @see RewardsService#calculateRewards(User)
 	 */
+	@Async
 	public CompletableFuture<Void> calculateRewardsAsync(List<User> users) {
 		
 		List<Attraction> attractions = locationService.getAttractions();
@@ -158,6 +162,22 @@ public class TourGuideService {
 		
 	}
 
+    @PreDestroy
+    public void cleanup() {
+        System.out.println("Cleaning up and shutting down the executor...");
+
+        if (executorService != null) {
+        	executorService.shutdown();
+            try {
+                if (!executorService.getThreadPoolExecutor().awaitTermination(60, TimeUnit.SECONDS)) {
+                	executorService.getThreadPoolExecutor().shutdownNow();
+                }
+            } catch (InterruptedException e) {
+            	executorService.getThreadPoolExecutor().shutdownNow();
+            }
+        }
+    }
+	
 	private void addShutDownHook() {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {

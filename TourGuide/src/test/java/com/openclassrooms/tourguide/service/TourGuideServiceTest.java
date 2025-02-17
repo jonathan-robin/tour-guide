@@ -1,4 +1,4 @@
-package com.openclassrooms.tourguide;
+package com.openclassrooms.tourguide.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -43,7 +43,7 @@ import tripPricer.TripPricer;
  */
 @SpringBootTest
 @Slf4j
-public class TestTourGuideService {
+public class TourGuideServiceTest {
 	
 	@Autowired
 	private UserService userService;

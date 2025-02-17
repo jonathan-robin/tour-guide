@@ -6,13 +6,16 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.time.StopWatch;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.test.annotation.DirtiesContext;
 
 import gpsUtil.location.Attraction;
 import gpsUtil.location.VisitedLocation;
@@ -28,9 +31,10 @@ import com.openclassrooms.tourguide.service.LocationService;
 import com.openclassrooms.tourguide.service.RewardsService;
 import com.openclassrooms.tourguide.service.TripService;
 import com.openclassrooms.tourguide.service.UserService;
+import com.openclassrooms.tourguide.service.UtilsService;
 
 @SpringBootTest
-@Slf4j
+@DirtiesContext
 public class TestPerformance {
 
 	@Autowired
@@ -40,12 +44,21 @@ public class TestPerformance {
 	private LocationService locationService;
 	
 	@Autowired
-	private TourGuideService tourGuideService;
+	private RewardsService rewardsService; 
+
+	@Autowired
+	private AsyncConfig config; 
+	@Autowired 
+	private UtilsService utilsService;
+	
+	private ThreadPoolTaskExecutor executorService;
+
 	
    @BeforeEach
     public void setUp() {
 	   InternalTestHelper.setInternalUserNumber(100);
 	   userService.initializeInternalUsers();
+	   executorService = config.taskExecutor();
     }
 
 	/**
@@ -62,13 +75,16 @@ public class TestPerformance {
 	 * This test simulates tracking the locations of a large number of users (up to 100,000 users) asynchronously using the 
 	 * {@link TourGuideService}. The time taken to track all user locations is measured using a {@link StopWatch}. 
 	 * The test ensures that the tracking process completes within 15 minutes.
+	 * @throws ExecutionException 
+	 * @throws InterruptedException 
 	 * 
 	 * @throws Exception If any error occurs during the test execution.
 	 */
 	
 	@Test
-	public void highVolumeTrackLocation() {
+	public void highVolumeTrackLocation() throws InterruptedException, ExecutionException {
 
+		TourGuideService tourGuideService = new TourGuideService(rewardsService, locationService, config, utilsService);
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
 
@@ -76,7 +92,7 @@ public class TestPerformance {
 		allUsers = userService.getAllUsers();
 
 	    CompletableFuture<Void> allLocationsTracked = tourGuideService.trackUsersLocationsAsync(allUsers);
-	    allLocationsTracked.join(); 
+	    allLocationsTracked.get(); 
 
 		stopWatch.stop();
 		tourGuideService.tracker.stopTracking();
@@ -112,7 +128,8 @@ public class TestPerformance {
 	 */
 	@Test
 	public void highVolumeGetRewards() {
-		
+		TourGuideService tourGuideService = new TourGuideService(rewardsService, locationService, config, utilsService);
+
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
 
@@ -135,5 +152,7 @@ public class TestPerformance {
 				+ " seconds.");
 		assertTrue(TimeUnit.MINUTES.toSeconds(20) >= TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()));
 	}
+	
+
 
 }

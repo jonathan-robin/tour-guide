@@ -18,7 +18,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
-
+/**
+ * Unit tests for the {@link LocationController} class.
+ * 
+ * <p>This test class verifies the functionality of retrieving a user's location
+ * and fetching nearby attractions.</p>
+ * 
+ * <p>It uses Spring Boot's test context with {@link SpringBootTest} and extends
+ * {@link MockitoExtension} for potential mocking needs.</p>
+ */
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
 public class LocationControllerTest {
@@ -31,18 +39,35 @@ public class LocationControllerTest {
 
     private User testUser;
 
+    /**
+     * Initializes test data before each test execution.
+     * 
+     * <p>Sets up internal test users and retrieves a test user for use in the tests.</p>
+     */
     @BeforeEach
     void setUp() {
-    	InternalTestHelper.setInternalUserNumber(100);    	
-    	testUser = userService.getAllUsers().get(0);
+        InternalTestHelper.setInternalUserNumber(100);
+        testUser = userService.getAllUsers().get(0);
     }
 
+    /**
+     * Tests the retrieval of a user's location.
+     * 
+     * <p>Ensures that the {@link LocationController#getLocation(String)} method
+     * returns a non-null {@link ResponseEntity} containing a {@link VisitedLocation}.</p>
+     */
     @Test
     void testGetLocation() {
         ResponseEntity<VisitedLocation> result = locationController.getLocation(testUser.getUserName());
         assertNotNull(result);
     }
 
+    /**
+     * Tests the retrieval of nearby attractions for a user.
+     * 
+     * <p>Ensures that the {@link LocationController#getNearbyAttractions(String)} method
+     * returns exactly five nearby attractions.</p>
+     */
     @Test
     void testGetNearbyAttractions() {
         ResponseEntity<List<UserNearByAttractionDto>> result = locationController.getNearbyAttractions(testUser.getUserName());
