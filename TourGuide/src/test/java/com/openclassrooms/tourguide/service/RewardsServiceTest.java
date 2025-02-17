@@ -77,7 +77,7 @@ public class RewardsServiceTest {
      */
     @BeforeEach
     public void setup() { 
-        InternalTestHelper.setInternalUserNumber(10000);
+        InternalTestHelper.setInternalUserNumber(100);
         user = userService.getAllUsers().get(0);
         attraction = locationService.getAttractions().get(0);
     }
@@ -182,9 +182,6 @@ public class RewardsServiceTest {
 
         utilsService.setProximityBuffer(Integer.MAX_VALUE);
         InternalTestHelper.setInternalUserNumber(1);
-
-        /* First version of reward calculation */
-        tourGuideService.calculateRewards(userService.getAllUsers().get(0));
         
         /* Async version */
         User user = userService.getAllUsers().get(0);

@@ -51,14 +51,13 @@ public class TestPerformance {
 	@Autowired 
 	private UtilsService utilsService;
 	
-	private ThreadPoolTaskExecutor executorService;
+
 
 	
    @BeforeEach
     public void setUp() {
 	   InternalTestHelper.setInternalUserNumber(100);
 	   userService.initializeInternalUsers();
-	   executorService = config.taskExecutor();
     }
 
 	/**

@@ -3,7 +3,6 @@ package com.openclassrooms.tourguide.application;
 import com.openclassrooms.tourguide.config.AsyncConfig;
 import com.openclassrooms.tourguide.dto.UserNearByAttractionDto;
 import com.openclassrooms.tourguide.model.User;
-import com.openclassrooms.tourguide.model.UserReward;
 import com.openclassrooms.tourguide.service.LocationService;
 import com.openclassrooms.tourguide.service.RewardsService;
 import com.openclassrooms.tourguide.service.UtilsService;
@@ -146,20 +145,6 @@ public class TourGuideService {
 
 	    return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
 
-	}
-	
-	public void calculateRewards(User user) {
-		List<VisitedLocation> userLocations = user.getVisitedLocations();
-		List<Attraction> attractions = locationService.getAttractions();
-		
-		for(VisitedLocation visitedLocation : userLocations) {
-			for(Attraction attraction : attractions) {
-				if (!user.getUserRewards().stream().anyMatch(r -> r.attraction.attractionName.equals(attraction.attractionName))
-	    				&& utilsService.nearAttraction(visitedLocation, attraction)) 
-						user.addUserReward(new UserReward(visitedLocation, attraction, rewardsService.getRewardPoints(attraction, user)));
-				}
-			}
-		
 	}
 
     @PreDestroy
