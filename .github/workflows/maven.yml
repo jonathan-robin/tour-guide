@@ -54,21 +54,23 @@ jobs:
     needs: [build, test]
     steps:
       - uses: actions/checkout@v4
-      - name: Install Docker
+      - name: Check if Docker is installed
         run: |
-          sudo apt-get update
-          sudo apt-get upgrade -y
-          sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
-          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-          sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-          sudo apt-get update
-          sudo apt-get install -y docker-ce docker-ce-cli containerd.io
-      - name: Install Docker Compose
+          if ! docker --version &> /dev/null; then  # Si Docker n'est pas installé
+            echo "Docker is not installed. Installing Docker..."  # Affiche un message
+            sudo apt-get update
+            sudo apt-get install -y docker-ce docker-ce-cli containerd.io  # Installe Docker
+          else
+            echo "Docker is already installed."  # Affiche un message si Docker est déjà installé
+          fi
+      - name: Check if Docker Compose is installed
         run: |
-          if ! docker compose version &> /dev/null; then
-            echo "Docker Compose plugin not found, installing standalone version..."
+          if ! docker compose version &> /dev/null; then  # Si Docker Compose n'est pas installé
+            echo "Docker Compose is not installed. Installing Docker Compose..."  # Affiche un message
             sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-            sudo chmod +x /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose  # Donne les permissions d'exécution
+          else
+            echo "Docker Compose is already installed."  # Affiche un message si Docker Compose est déjà installé
           fi
       - name: Docker Login
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
